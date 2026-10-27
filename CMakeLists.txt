@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(s-shot
-    VERSION 1.34.0
+project(supershot
+    VERSION 1.35.0
     DESCRIPTION "Lightweight Screenshot & Annotation Tool for Linux"
     LANGUAGES CXX
 )
@@ -45,9 +45,9 @@ set(SOURCES
     resources/resources.qrc
 )
 
-add_executable(s-shot ${SOURCES})
+add_executable(supershot ${SOURCES})
 
-target_include_directories(s-shot PRIVATE
+target_include_directories(supershot PRIVATE
     src
     src/core
     src/tray
@@ -58,7 +58,7 @@ target_include_directories(s-shot PRIVATE
     ${X11_INCLUDE_DIR}
 )
 
-target_link_libraries(s-shot PRIVATE
+target_link_libraries(supershot PRIVATE
     Qt6::Core
     Qt6::Gui
     Qt6::Widgets
@@ -67,8 +67,8 @@ target_link_libraries(s-shot PRIVATE
 )
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
-    target_compile_options(s-shot PRIVATE -O3 -ffunction-sections -fdata-sections)
-    target_link_options(s-shot PRIVATE -Wl,--gc-sections -Wl,--as-needed)
+    target_compile_options(supershot PRIVATE -O3 -ffunction-sections -fdata-sections)
+    target_link_options(supershot PRIVATE -Wl,--gc-sections -Wl,--as-needed)
 endif()
 
 enable_testing()
@@ -124,21 +124,23 @@ add_test(NAME test_editor_tools COMMAND test_editor_tools)
 # Installation rules
 include(GNUInstallDirs)
 
-install(TARGETS s-shot
+install(TARGETS supershot
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
 install(FILES
-    resources/io.github.uri_travoski.s-shot.desktop
+    resources/io.github.uri_travoski.supershot.desktop
     DESTINATION ${CMAKE_INSTALL_DATADIR}/applications
 )
 
 install(FILES
-    resources/io.github.uri_travoski.s-shot.metainfo.xml
+    resources/io.github.uri_travoski.supershot.metainfo.xml
     DESTINATION ${CMAKE_INSTALL_DATADIR}/metainfo
 )
 
 install(FILES
+    resources/icons/supershot.svg
+    resources/icons/io.github.uri_travoski.supershot.svg
     resources/icons/s-shot.svg
     resources/icons/io.github.uri_travoski.s-shot.svg
     DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps
@@ -147,6 +149,8 @@ install(FILES
 foreach(SZ 16x16 22x22 24x24 32x32 48x48 64x64 128x128 256x256)
     if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/resources/icons/hicolor/${SZ}/apps/s-shot.png")
         install(FILES
+            resources/icons/hicolor/${SZ}/apps/supershot.png
+            resources/icons/hicolor/${SZ}/apps/io.github.uri_travoski.supershot.png
             resources/icons/hicolor/${SZ}/apps/s-shot.png
             resources/icons/hicolor/${SZ}/apps/io.github.uri_travoski.s-shot.png
             DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/${SZ}/apps
@@ -155,16 +159,16 @@ foreach(SZ 16x16 22x22 24x24 32x32 48x48 64x64 128x128 256x256)
 endforeach()
 
 # CPack configuration
-set(CPACK_PACKAGE_NAME "s-shot")
-set(CPACK_PACKAGE_VENDOR "S-Shot")
+set(CPACK_PACKAGE_NAME "supershot")
+set(CPACK_PACKAGE_VENDOR "SuperShot")
 set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Lightweight Screenshot & Annotation Tool for Linux")
-set(CPACK_PACKAGE_HOMEPAGE_URL "https://github.com/s-shot/s-shot")
-set(CPACK_PACKAGE_CONTACT "s-shot-dev@example.com")
+set(CPACK_PACKAGE_HOMEPAGE_URL "https://github.com/uri-travoski/supershot")
+set(CPACK_PACKAGE_CONTACT "support@example.com")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 
 # Debian packaging
-set(CPACK_DEBIAN_PACKAGE_MAINTAINER "S-Shot Developer <support@example.com>")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "SuperShot Developer <support@example.com>")
 set(CPACK_DEBIAN_PACKAGE_SECTION "graphics")
 set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
 set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS OFF)

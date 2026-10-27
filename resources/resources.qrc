@@ -1,5 +1,6 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource prefix="/">
+    <file>icons/supershot.svg</file>
     <file>icons/s-shot.svg</file>
     <file>icons/select.svg</file>
     <file>icons/pen.svg</file>
@@ -34,6 +35,13 @@
     <file>icons/paste.svg</file>
     <file>icons/move.svg</file>
     <file>icons/hand.svg</file>
+    <file>icons/blur-tool.svg</file>
+    <file>icons/ellipse-shape.svg</file>
+    <file>icons/eyedropper.svg</file>
+    <file>icons/pencil.svg</file>
+    <file>icons/rect-marquee.svg</file>
+    <file>icons/rect-shape.svg</file>
+    <file>icons/type.svg</file>
 
     <file>icons/light/hand.svg</file>
     <file>icons/light/select.svg</file>
@@ -59,6 +67,7 @@
     <file>icons/light/zoom_out.svg</file>
     <file>icons/light/zoom_fit.svg</file>
     <file>icons/light/zoom_100.svg</file>
+    <file>icons/light/supershot.svg</file>
     <file>icons/light/s-shot.svg</file>
     <file>icons/light/fullscreen.svg</file>
     <file>icons/light/snip.svg</file>
@@ -69,14 +78,29 @@
     <file>icons/light/quit.svg</file>
     <file>icons/light/paste.svg</file>
     <file>icons/light/move.svg</file>
+    <file>icons/light/blur-tool.svg</file>
+    <file>icons/light/ellipse-shape.svg</file>
+    <file>icons/light/eyedropper.svg</file>
+    <file>icons/light/pencil.svg</file>
+    <file>icons/light/rect-marquee.svg</file>
+    <file>icons/light/rect-shape.svg</file>
+    <file>icons/light/type.svg</file>
 
+    <file>icons/hicolor/16x16/apps/supershot.png</file>
     <file>icons/hicolor/16x16/apps/s-shot.png</file>
+    <file>icons/hicolor/22x22/apps/supershot.png</file>
     <file>icons/hicolor/22x22/apps/s-shot.png</file>
+    <file>icons/hicolor/24x24/apps/supershot.png</file>
     <file>icons/hicolor/24x24/apps/s-shot.png</file>
+    <file>icons/hicolor/32x32/apps/supershot.png</file>
     <file>icons/hicolor/32x32/apps/s-shot.png</file>
+    <file>icons/hicolor/48x48/apps/supershot.png</file>
     <file>icons/hicolor/48x48/apps/s-shot.png</file>
+    <file>icons/hicolor/64x64/apps/supershot.png</file>
     <file>icons/hicolor/64x64/apps/s-shot.png</file>
+    <file>icons/hicolor/128x128/apps/supershot.png</file>
     <file>icons/hicolor/128x128/apps/s-shot.png</file>
+    <file>icons/hicolor/256x256/apps/supershot.png</file>
     <file>icons/hicolor/256x256/apps/s-shot.png</file>
 </qresource>
 </RCC>

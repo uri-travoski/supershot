@@ -13,7 +13,7 @@
 SettingsDialog::SettingsDialog(QWidget* parent)
     : QDialog(parent)
 {
-    setWindowTitle(tr("Settings - S-Shot"));
+    setWindowTitle(tr("Settings - SuperShot"));
     resize(500, 460);
 
     QVBoxLayout* mainLayout = new QVBoxLayout(this);
@@ -98,7 +98,7 @@ SettingsDialog::SettingsDialog(QWidget* parent)
             m_updateStatusLabel->setText(tr("New version %1 available! (Current: %2)").arg(latestVer, QCoreApplication::applicationVersion()));
             m_updateStatusLabel->setStyleSheet("color: #30e500; font-size: 11px; font-weight: bold;");
         } else {
-            m_updateStatusLabel->setText(tr("S-Shot is up to date (v%1).").arg(QCoreApplication::applicationVersion()));
+            m_updateStatusLabel->setText(tr("SuperShot is up to date (v%1).").arg(QCoreApplication::applicationVersion()));
             m_updateStatusLabel->setStyleSheet("color: #888888; font-size: 11px;");
         }
     });

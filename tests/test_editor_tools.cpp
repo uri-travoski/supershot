@@ -1102,7 +1102,7 @@ void TestEditorTools::testToolbarIconsAndActions() {
         "zoom_in", "zoom_out", "zoom_100", "zoom_fit",
         "hand", "select", "text", "arrow", "pen", "highlighter", "line",
         "double_arrow", "rect", "ellipse", "badge", "blur", "bucket", "crop",
-        "fullscreen", "snip", "picker", "settings", "about", "quit", "s-shot"
+        "fullscreen", "snip", "picker", "settings", "about", "quit", "s-shot", "supershot"
     };
 
     for (const QString& name : iconNames) {
@@ -1261,7 +1261,7 @@ void TestEditorTools::testCrashHandlerAndLogging() {
     QString logDir = CrashHandler::logDir();
 
     QVERIFY(!logPath.isEmpty());
-    QVERIFY(logPath.endsWith("s-shot.log"));
+    QVERIFY(logPath.endsWith("supershot.log") || logPath.endsWith("s-shot.log"));
     QVERIFY(!crashPath.isEmpty());
     QVERIFY(crashPath.endsWith("crash.log"));
     QVERIFY(!logDir.isEmpty());

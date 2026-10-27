@@ -69,9 +69,9 @@ void UpdateManager::checkForUpdates(bool silentIfUpToDate, QWidget* parent) {
 
     emit checkStarted();
 
-    QUrl url("https://api.github.com/repos/uri-travoski/s-shot/releases/latest");
+    QUrl url("https://api.github.com/repos/uri-travoski/supershot/releases/latest");
     QNetworkRequest req(url);
-    req.setHeader(QNetworkRequest::UserAgentHeader, "S-Shot/" + currentVersion());
+    req.setHeader(QNetworkRequest::UserAgentHeader, "SuperShot/" + currentVersion());
     req.setRawHeader("Accept", "application/vnd.github+json");
 
     QNetworkReply* reply = m_nam->get(req);
@@ -117,7 +117,7 @@ void UpdateManager::onReplyFinished(QNetworkReply* reply) {
     QString tagName = obj.value("tag_name").toString();
     QString htmlUrl = obj.value("html_url").toString();
     if (htmlUrl.isEmpty()) {
-        htmlUrl = "https://github.com/uri-travoski/s-shot/releases";
+        htmlUrl = "https://github.com/uri-travoski/supershot/releases";
     }
 
     m_latestVersion = tagName;
@@ -128,9 +128,9 @@ void UpdateManager::onReplyFinished(QNetworkReply* reply) {
 
     if (newer) {
         QMessageBox box(parent);
-        box.setWindowTitle(tr("Update Available - S-Shot"));
+        box.setWindowTitle(tr("Update Available - SuperShot"));
         box.setIcon(QMessageBox::Information);
-        box.setText(tr("A new version of S-Shot is available!"));
+        box.setText(tr("A new version of SuperShot is available!"));
         box.setInformativeText(
             tr("Current version: %1\nLatest version: %2\n\nWould you like to open the GitHub release page to update?")
             .arg(currentVersion(), tagName)
@@ -147,8 +147,8 @@ void UpdateManager::onReplyFinished(QNetworkReply* reply) {
         if (!m_silentIfUpToDate) {
             QMessageBox::information(
                 parent,
-                tr("S-Shot is Up to Date"),
-                tr("You are running the latest version of S-Shot (v%1).").arg(currentVersion())
+                tr("SuperShot is Up to Date"),
+                tr("You are running the latest version of SuperShot (v%1).").arg(currentVersion())
             );
         }
     }

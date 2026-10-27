@@ -19,16 +19,16 @@
 
 int main(int argc, char* argv[]) {
     QApplication app(argc, argv);
-    app.setApplicationName("s-shot");
-    app.setApplicationDisplayName("S-Shot");
-    app.setApplicationVersion("1.34");
-    app.setOrganizationName("S-Shot");
+    app.setApplicationName("supershot");
+    app.setApplicationDisplayName("SuperShot");
+    app.setApplicationVersion("1.35.0");
+    app.setOrganizationName("SuperShot");
     app.setWindowIcon(IconManager::getAppIcon());
 
     CrashHandler::init();
 
     QCommandLineParser parser;
-    parser.setApplicationDescription("S-Shot: Lightweight Linux Screenshot & Annotation Tool");
+    parser.setApplicationDescription("SuperShot: Lightweight Linux Screenshot & Annotation Tool");
     parser.addHelpOption();
     parser.addVersionOption();
 
@@ -53,7 +53,7 @@ int main(int argc, char* argv[]) {
     parser.addPositionalArgument("file", "Image file to open", "[file]");
     parser.process(app);
 
-    const QString serverName = "s-shot-single-instance-socket";
+    const QString serverName = "supershot-single-instance-socket";
     QLocalSocket socket;
     socket.connectToServer(serverName);
     if (socket.waitForConnected(500)) {

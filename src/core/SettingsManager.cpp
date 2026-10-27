@@ -21,7 +21,7 @@ void SettingsManager::load() {
         picDir = QDir::homePath() + "/Pictures";
     }
 
-    QSettings s("s-shot", "s-shot");
+    QSettings s("supershot", "supershot");
     m_startWithPC = s.value("startWithPC", false).toBool();
     m_saveLocation = s.value("saveLocation", m_saveLocation).toString();
     if (m_saveLocation == picDir + "/Screenshots") {
@@ -44,7 +44,7 @@ void SettingsManager::load() {
 }
 
 void SettingsManager::save() {
-    QSettings s("s-shot", "s-shot");
+    QSettings s("supershot", "supershot");
     s.setValue("startWithPC", m_startWithPC);
     s.setValue("saveLocation", m_saveLocation);
     s.setValue("defaultFormat", m_defaultFormat);
@@ -75,7 +75,7 @@ void SettingsManager::setStartWithPC(bool val) {
 void SettingsManager::updateAutostartDesktopFile(bool enable) {
     QString autostartDir = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) + "/autostart";
     QDir().mkpath(autostartDir);
-    QString desktopFilePath = autostartDir + "/s-shot.desktop";
+    QString desktopFilePath = autostartDir + "/supershot.desktop";
 
     if (enable) {
         QFile file(desktopFilePath);
@@ -83,10 +83,10 @@ void SettingsManager::updateAutostartDesktopFile(bool enable) {
             QTextStream out(&file);
             out << "[Desktop Entry]\n";
             out << "Type=Application\n";
-            out << "Name=S-Shot\n";
+            out << "Name=SuperShot\n";
             out << "Comment=Lightweight Screenshot & Annotation Tool\n";
-            out << "Exec=s-shot --tray\n";
-            out << "Icon=s-shot\n";
+            out << "Exec=supershot --tray\n";
+            out << "Icon=io.github.uri_travoski.supershot\n";
             out << "Terminal=false\n";
             out << "Categories=Graphics;Utility;\n";
             out << "X-GNOME-Autostart-enabled=true\n";

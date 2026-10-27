@@ -34,7 +34,7 @@ jobs:
             file \
             wget
 
-      - name: Configure and build S-Shot
+      - name: Configure and build SuperShot
         run: |
           cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
           cmake --build build -j$(nproc)
@@ -54,8 +54,7 @@ jobs:
         run: |
           DESTDIR=AppDir cmake --install build
           mkdir -p AppDir/usr/share/metainfo
-          cp resources/io.github.uri_travoski.s-shot.metainfo.xml AppDir/usr/share/metainfo/
-          cp resources/org.sshot.s-shot.metainfo.xml AppDir/usr/share/metainfo/
+          cp resources/io.github.uri_travoski.supershot.metainfo.xml AppDir/usr/share/metainfo/
 
           wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
           wget -q https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
@@ -69,14 +68,15 @@ jobs:
           export PATH="$(pwd)/linuxdeploy-root/usr/bin:$PATH"
           ./linuxdeploy-root/usr/bin/linuxdeploy \
             --appdir AppDir \
-            -e AppDir/usr/bin/s-shot \
-            -i resources/icons/io.github.uri_travoski.s-shot.svg \
-            -d resources/io.github.uri_travoski.s-shot.desktop \
+            --plugin qt \
+            -e AppDir/usr/bin/supershot \
+            -i resources/icons/io.github.uri_travoski.supershot.svg \
+            -d resources/io.github.uri_travoski.supershot.desktop \
             --output appimage
 
-          # Clean tool AppImages and keep only S-Shot
+          # Clean tool AppImages and keep only SuperShot
           rm -rf linuxdeploy* squashfs-root AppDir
-          mv S-Shot*.AppImage dist/
+          mv SuperShot*.AppImage dist/ 2>/dev/null || mv supershot*.AppImage dist/ 2>/dev/null || mv *.AppImage dist/
 
       - name: Upload DEB package
         uses: actions/upload-artifact@v4
@@ -114,9 +114,9 @@ jobs:
           echo "Building Flatpak bundle for version ${VERSION}..."
           flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
           flatpak install --user -y flathub org.kde.Platform/x86_64/6.8 org.kde.Sdk/x86_64/6.8
-          flatpak-builder --user --force-clean --repo=repo build io.github.uri_travoski.s-shot.yml
-          flatpak build-bundle repo "io.github.uri_travoski.s-shot-${VERSION}.flatpak" io.github.uri_travoski.s-shot
-          flatpak build-bundle repo "s-shot-${VERSION}.flatpak" io.github.uri_travoski.s-shot
+          flatpak-builder --user --force-clean --repo=repo build io.github.uri_travoski.supershot.yml
+          flatpak build-bundle repo "io.github.uri_travoski.supershot-${VERSION}.flatpak" io.github.uri_travoski.supershot
+          flatpak build-bundle repo "supershot-${VERSION}.flatpak" io.github.uri_travoski.supershot
 
       - name: Upload Flatpak artifact
         uses: actions/upload-artifact@v4
@@ -146,7 +146,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: release-assets/*
-          name: S-Shot ${{ github.ref_name }}
+          name: SuperShot ${{ github.ref_name }}
           draft: false
           prerelease: false
           generate_release_notes: true

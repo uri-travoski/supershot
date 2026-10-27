@@ -13,13 +13,13 @@
 #include <sys/wait.h>
 #include <exception>
 
-static char s_crashLogPath[512] = "/tmp/s-shot-crash.log";
-static char s_appLogPath[512] = "/tmp/s-shot.log";
+static char s_crashLogPath[512] = "/tmp/supershot-crash.log";
+static char s_appLogPath[512] = "/tmp/supershot.log";
 
 static void signalHandler(int sig, siginfo_t* info, void* /*ctx*/) {
     int fd = open(s_crashLogPath, O_WRONLY | O_CREAT | O_APPEND, 0644);
     if (fd >= 0) {
-        const char header[] = "\n================== S-SHOT CRASH REPORT ==================\n";
+        const char header[] = "\n================== SUPERSHOT CRASH REPORT ==================\n";
         write(fd, header, sizeof(header) - 1);
 
         const char* sigName = "UNKNOWN";
@@ -48,17 +48,17 @@ static void signalHandler(int sig, siginfo_t* info, void* /*ctx*/) {
     }
 
     // Also write brief message to stderr
-    fprintf(stderr, "\n[S-Shot Error] Fatal signal %d received. Crash report written to: %s\n", sig, s_crashLogPath);
+    fprintf(stderr, "\n[SuperShot Error] Fatal signal %d received. Crash report written to: %s\n", sig, s_crashLogPath);
 
     // Fork a child process to show a GUI notification if possible
     pid_t pid = fork();
     if (pid == 0) {
         char msg[1024];
         snprintf(msg, sizeof(msg),
-                 "S-Shot encountered a fatal error and has terminated.\n\nCrash log written to:\n%s",
+                 "SuperShot encountered a fatal error and has terminated.\n\nCrash log written to:\n%s",
                  s_crashLogPath);
         // Try zenity (common on GNOME/Cinnamon/Mint)
-        execlp("zenity", "zenity", "--error", "--title=S-Shot Fatal Error", "--text", msg, nullptr);
+        execlp("zenity", "zenity", "--error", "--title=SuperShot Fatal Error", "--text", msg, nullptr);
         // Fallback to kdialog (KDE)
         execlp("kdialog", "kdialog", "--error", msg, nullptr);
         // Fallback to xmessage
@@ -72,7 +72,7 @@ static void signalHandler(int sig, siginfo_t* info, void* /*ctx*/) {
 }
 
 static void terminateHandler() {
-    fprintf(stderr, "\n[S-Shot Error] Unhandled exception occurred.\n");
+    fprintf(stderr, "\n[SuperShot Error] Unhandled exception occurred.\n");
     int fd = open(s_crashLogPath, O_WRONLY | O_CREAT | O_APPEND, 0644);
     if (fd >= 0) {
         const char msg[] = "\n[ERROR] Terminate handler invoked: unhandled C++ exception.\n";
@@ -114,7 +114,7 @@ void CrashHandler::init() {
     QDir().mkpath(configDir);
 
     QString crashFile = configDir + "/crash.log";
-    QString appFile = configDir + "/s-shot.log";
+    QString appFile = configDir + "/supershot.log";
 
     strncpy(s_crashLogPath, crashFile.toUtf8().constData(), sizeof(s_crashLogPath) - 1);
     s_crashLogPath[sizeof(s_crashLogPath) - 1] = '\0';
@@ -152,5 +152,5 @@ QString CrashHandler::logDir() {
     if (baseDir.isEmpty()) {
         baseDir = QDir::homePath() + "/.config";
     }
-    return baseDir + "/s-shot";
+    return baseDir + "/supershot";
 }

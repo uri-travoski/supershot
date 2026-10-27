@@ -12,7 +12,7 @@
 AboutDialog::AboutDialog(QWidget* parent)
     : QDialog(parent)
 {
-    setWindowTitle(tr("About S-Shot"));
+    setWindowTitle(tr("About SuperShot"));
     resize(420, 360);
     setStyleSheet("QDialog { background-color: #242424; color: #ffffff; }");
 
@@ -26,10 +26,10 @@ AboutDialog::AboutDialog(QWidget* parent)
     headerLayout->addWidget(iconLabel);
 
     QVBoxLayout* titleLayout = new QVBoxLayout();
-    QLabel* nameLabel = new QLabel("S-Shot", this);
+    QLabel* nameLabel = new QLabel("SuperShot", this);
     nameLabel->setStyleSheet("font-size: 22px; font-weight: bold; color: #30e500;");
     QString appVer = QCoreApplication::applicationVersion();
-    if (appVer.isEmpty()) appVer = "1.34";
+    if (appVer.isEmpty()) appVer = "1.35.0";
     QLabel* verLabel = new QLabel(tr("Version %1 (Linux x86_64)").arg(appVer), this);
     verLabel->setStyleSheet("font-size: 12px; color: #aaaaaa;");
     titleLayout->addWidget(nameLabel);
@@ -39,7 +39,7 @@ AboutDialog::AboutDialog(QWidget* parent)
     layout->addLayout(headerLayout);
 
     QLabel* descLabel = new QLabel(
-        tr("<b>S-Shot</b> is a blazing fast, ultra-lightweight screenshot capture "
+        tr("<b>SuperShot</b> is a blazing fast, ultra-lightweight screenshot capture "
            "and annotation tool for Linux with ksnip-inspired workflows.<br><br>"
            "• Multi-tab image & annotation editing<br>"
            "• Full annotation tools (Pen, Arrow, Shapes, Text, Badges, Blur)<br>"

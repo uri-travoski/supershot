@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.uri_travoski.supershot</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <name>SuperShot</name>
+  <summary>Lightweight screenshot and annotation tool for Linux</summary>
+  <description>
+    <p>
+      SuperShot is a native, ultra-lightweight Linux screenshot taking and annotation application
+      with a clean user interface, low memory footprint, system tray integration, and multi-tab image editing.
+    </p>
+    <p>Features include:</p>
+    <ul>
+      <li>Fullscreen, active window, and custom region screen capture</li>
+      <li>Color picker tool with hex and rgb clipboard copying</li>
+      <li>Rich annotation toolset: pen, highlighter, line, arrow, double arrow, rectangle, ellipse, badge counters, and borderless text labels</li>
+      <li>Area selection tool with move, copy, cut, crop, and white canvas deletion</li>
+      <li>Canvas expansion handles with pan and hand tool navigation</li>
+      <li>Pixelate and blur obfuscation tools for sensitive content</li>
+      <li>Fast startup and minimal system resource usage</li>
+    </ul>
+  </description>
+  <launchable type="desktop-id">io.github.uri_travoski.supershot.desktop</launchable>
+  <provides>
+    <binary>supershot</binary>
+  </provides>
+  <url type="homepage">https://github.com/uri-travoski/supershot</url>
+  <url type="bugtracker">https://github.com/uri-travoski/supershot/issues</url>
+  <url type="vcs-browser">https://github.com/uri-travoski/supershot</url>
+  <url type="contribute">https://github.com/uri-travoski/supershot</url>
+  <developer id="io.github.uri_travoski">
+    <name>uri-travoski</name>
+  </developer>
+  <branding>
+    <color type="primary" scheme_preference="light">#f0f0f0</color>
+    <color type="primary" scheme_preference="dark">#242424</color>
+  </branding>
+  <screenshots>
+    <screenshot type="default">
+      <caption>Main SuperShot annotation editor</caption>
+      <image>https://raw.githubusercontent.com/uri-travoski/supershot/main/resources/screenshots/supershot-showcase.png</image>
+    </screenshot>
+  </screenshots>
+  <content_rating type="oars-1.1"/>
+  <releases>
+    <release version="1.35.0" date="2026-10-27">
+      <description>
+        <p>Rebranded to SuperShot with refined Photoshop-style toolbar icons, perfectly balanced highlighter tool, and multi-format distribution (DEB, RPM, AppImage, Flatpak).</p>
+      </description>
+    </release>
+    <release version="1.34" date="2026-10-26">
+      <description>
+        <p>Photoshop toolbar icons across dark and light themes, including the iconic marquee selection tool, calligraphy fountain pen nib, water droplet blur tool, tilted paint bucket, eyedropper pipette, and classic serif type tool.</p>
+      </description>
+    </release>
+    <release version="1.33" date="2026-10-26">
+      <description>
+        <p>Pasted image resizing with 8 edge and corner handles, Photoshop-style crop workflow with interactive adjustments and rule-of-thirds grid, canvas-bounded annotations restricting writing and drawing to the image canvas, and 10% smaller system tray icon.</p>
+      </description>
+    </release>
+    <release version="1.32" date="2026-10-26">
+      <description>
+        <p>Right-click context menu copying in image editor, reliable Wayland and X11 clipboard integration for toolbar copy button, and exact screenshot boundary capture preventing extra canvas margins on HiDPI displays.</p>
+      </description>
+    </release>
+  </releases>
+</component>

@@ -1,0 +1,26 @@
+[Desktop Entry]
+Name=SuperShot
+GenericName=Screenshot & Annotation Tool
+Comment=Lightweight Screenshot and Annotation Tool
+Exec=supershot %F
+Icon=io.github.uri_travoski.supershot
+Terminal=false
+Type=Application
+Categories=Graphics;2DGraphics;RasterGraphics;
+Keywords=screenshot;capture;snip;annotation;screen;print;editor;supershot;
+StartupWMClass=supershot
+MimeType=image/png;image/jpeg;image/bmp;image/webp;
+StartupNotify=true
+Actions=Fullscreen;Region;Editor;
+
+[Desktop Action Fullscreen]
+Name=Capture Fullscreen
+Exec=supershot --fullscreen
+
+[Desktop Action Region]
+Name=Capture Selected Region
+Exec=supershot --region
+
+[Desktop Action Editor]
+Name=Open Annotation Editor
+Exec=supershot --editor

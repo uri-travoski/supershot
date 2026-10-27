@@ -29,7 +29,7 @@
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
 {
-    setWindowTitle("S-Shot");
+    setWindowTitle("SuperShot");
     setWindowIcon(IconManager::getAppIcon());
     resize(1020, 720);
 
@@ -223,7 +223,7 @@ void MainWindow::setupMenus() {
 
     fileMenu->addSeparator();
 
-    QAction* actQuit = fileMenu->addAction(IconManager::getIcon("quit"), tr("&Quit S-Shot"), QKeySequence::Quit, qApp, &QCoreApplication::quit);
+    QAction* actQuit = fileMenu->addAction(IconManager::getIcon("quit"), tr("&Quit SuperShot"), QKeySequence::Quit, qApp, &QCoreApplication::quit);
     registerAct(actQuit, "quit");
 
     // Edit Menu
@@ -287,7 +287,7 @@ void MainWindow::setupMenus() {
     });
     QAction* actLogs = helpMenu->addAction(IconManager::getIcon("open"), tr("View &Logs / Crash Reports..."), this, &MainWindow::openLogViewerDialog);
     registerAct(actLogs, "open");
-    QAction* actAbout = helpMenu->addAction(IconManager::getIcon("about"), tr("&About S-Shot"), this, &MainWindow::openAboutDialog);
+    QAction* actAbout = helpMenu->addAction(IconManager::getIcon("about"), tr("&About SuperShot"), this, &MainWindow::openAboutDialog);
     registerAct(actAbout, "about");
 }
 
@@ -1516,7 +1516,7 @@ void MainWindow::openAboutDialog() {
 
 void MainWindow::openLogViewerDialog() {
     QDialog dlg(this);
-    dlg.setWindowTitle(tr("S-Shot Logs & Diagnostics"));
+    dlg.setWindowTitle(tr("SuperShot Logs & Diagnostics"));
     dlg.resize(650, 480);
     dlg.setStyleSheet("QDialog { background-color: #242424; color: #ffffff; }");
 
@@ -1547,7 +1547,7 @@ void MainWindow::openLogViewerDialog() {
     QTextEdit* appLogEdit = createViewer(CrashHandler::logPath(), tr("No application logs recorded yet."));
     QTextEdit* crashLogEdit = createViewer(CrashHandler::crashLogPath(), tr("No crash reports found. The application is running normally."));
 
-    tabWidget->addTab(appLogEdit, tr("Application Log (s-shot.log)"));
+    tabWidget->addTab(appLogEdit, tr("Application Log (supershot.log)"));
     tabWidget->addTab(crashLogEdit, tr("Crash Log (crash.log)"));
     layout->addWidget(tabWidget);
 
