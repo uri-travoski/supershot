@@ -732,7 +732,7 @@ void TestEditorTools::testAboutDialogUpdateControls() {
     QVERIFY(status != nullptr);
     QCOMPARE(btn->text(), QString("Check for Updates"));
     QVERIFY(btn->isEnabled());
-    QVERIFY(status->text().contains("1.35.4") || status->text().contains("SuperShot"));
+    QVERIFY(status->text().contains("1.35.5") || status->text().contains("SuperShot"));
 
     // Simulate checkStarted signal
     emit UpdateManager::instance().checkStarted();
@@ -745,7 +745,7 @@ void TestEditorTools::testAboutDialogUpdateControls() {
     QVERIFY(status->text().contains("1.36.0"));
 
     // Simulate checkFinished with up to date
-    emit UpdateManager::instance().checkFinished(false, "v1.35.4", "https://github.com/uri-travoski/supershot/releases/tag/v1.35.4");
+    emit UpdateManager::instance().checkFinished(false, "v1.35.5", "https://github.com/uri-travoski/supershot/releases/tag/v1.35.5");
     QVERIFY(btn->isEnabled());
     QVERIFY(status->text().contains("up to date"));
 
@@ -1174,7 +1174,7 @@ void TestEditorTools::testToolbarIconsAndActions() {
     QVERIFY(foundCapture);
     QVERIFY(foundView);
 
-    // Verify left toolbar tool ordering: Arrow must be directly below Highlighter
+    // Verify left toolbar tool ordering: Line must be directly above Arrow
     QToolBar* leftBar = nullptr;
     QToolBar* mainBar = nullptr;
     for (auto* tb : win.findChildren<QToolBar*>()) {
@@ -1189,13 +1189,19 @@ void TestEditorTools::testToolbarIconsAndActions() {
 
     QList<QAction*> leftActs = leftBar->actions();
     int idxHighlighter = -1;
+    int idxLine = -1;
     int idxArrow = -1;
+    int idxDoubleArrow = -1;
     for (int i = 0; i < leftActs.size(); ++i) {
         if (leftActs[i]->data().toInt() == static_cast<int>(ToolType::Highlighter)) idxHighlighter = i;
+        if (leftActs[i]->data().toInt() == static_cast<int>(ToolType::Line)) idxLine = i;
         if (leftActs[i]->data().toInt() == static_cast<int>(ToolType::Arrow)) idxArrow = i;
+        if (leftActs[i]->data().toInt() == static_cast<int>(ToolType::DoubleArrow)) idxDoubleArrow = i;
     }
     QVERIFY(idxHighlighter >= 0);
-    QCOMPARE(idxArrow, idxHighlighter + 1);
+    QCOMPARE(idxLine, idxHighlighter + 1);
+    QCOMPARE(idxArrow, idxLine + 1);
+    QCOMPARE(idxDoubleArrow, idxArrow + 1);
 
     // Verify default tool is Pan/Hand tool and default font is 11 pt
     QVERIFY(win.currentScene() != nullptr);

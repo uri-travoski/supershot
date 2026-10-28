@@ -503,8 +503,8 @@ void MainWindow::setupToolbars() {
     m_actText = addToolAct("text", tr("Text"), ToolType::Text);
     m_actPen = addToolAct("pen", tr("Pen (Freehand Drawing)"), ToolType::Pen);
     m_actHighlighter = addToolAct("highlighter", tr("Highlighter"), ToolType::Highlighter);
-    m_actArrow = addToolAct("arrow", tr("Arrow"), ToolType::Arrow);
     m_actLine = addToolAct("line", tr("Line"), ToolType::Line);
+    m_actArrow = addToolAct("arrow", tr("Arrow"), ToolType::Arrow);
     m_actDoubleArrow = addToolAct("double_arrow", tr("Double Arrow"), ToolType::DoubleArrow);
     m_actRect = addToolAct("rect", tr("Rectangle"), ToolType::Rectangle);
     m_actEllipse = addToolAct("ellipse", tr("Ellipse"), ToolType::Ellipse);
