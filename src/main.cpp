@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
     QApplication app(argc, argv);
     app.setApplicationName("supershot");
     app.setApplicationDisplayName("SuperShot");
-    app.setApplicationVersion("1.37.1");
+    app.setApplicationVersion("1.37.2");
     app.setOrganizationName("SuperShot");
     app.setWindowIcon(IconManager::getAppIcon());
 
@@ -91,7 +91,7 @@ int main(int argc, char* argv[]) {
         MainWindow* win = getMainWindow();
         win->addImageTab(pix);
         if (settings.openEditorAfterCapture()) {
-            win->show();
+            win->showMaximized();
             win->raise();
             win->activateWindow();
         }
@@ -115,7 +115,7 @@ int main(int argc, char* argv[]) {
             break;
         case HotkeyAction::Editor: {
             MainWindow* win = getMainWindow();
-            win->show();
+            win->showMaximized();
             win->raise();
             win->activateWindow();
             break;
@@ -139,16 +139,19 @@ int main(int argc, char* argv[]) {
                     captureMgr.pickColor();
                 } else if (token == "--editor") {
                     MainWindow* win = getMainWindow();
-                    win->show();
+                    win->showMaximized();
                     win->raise();
                     win->activateWindow();
                 } else if (token == "--settings") {
                     MainWindow* win = getMainWindow();
-                    win->show();
+                    win->showMaximized();
                     win->openSettingsDialog();
                 } else if (!token.startsWith("--")) {
                     MainWindow* win = getMainWindow();
                     win->openImage(token);
+                    win->showMaximized();
+                    win->raise();
+                    win->activateWindow();
                 }
             }
         });
@@ -161,7 +164,7 @@ int main(int argc, char* argv[]) {
     if (!positionalArgs.isEmpty()) {
         MainWindow* win = getMainWindow();
         win->openImage(positionalArgs.first());
-        win->show();
+        win->showMaximized();
     } else if (parser.isSet(fullscreenOption)) {
         captureMgr.captureFullscreen();
     } else if (parser.isSet(regionOption)) {
@@ -170,17 +173,17 @@ int main(int argc, char* argv[]) {
         captureMgr.pickColor();
     } else if (parser.isSet(editorOption)) {
         MainWindow* win = getMainWindow();
-        win->show();
+        win->showMaximized();
     } else if (parser.isSet(settingsOption)) {
         MainWindow* win = getMainWindow();
-        win->show();
+        win->showMaximized();
         win->openSettingsDialog();
     } else if (parser.isSet(trayOption)) {
         // Run purely in tray
     } else {
         // Default interactive start: open editor
         MainWindow* win = getMainWindow();
-        win->show();
+        win->showMaximized();
     }
 
     if (SettingsManager::instance().autoCheckUpdates()) {

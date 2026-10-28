@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 project(supershot
-    VERSION 1.37.1
+    VERSION 1.37.2
     DESCRIPTION "Lightweight Screenshot & Annotation Tool for Linux"
     LANGUAGES CXX
 )

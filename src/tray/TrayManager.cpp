@@ -132,7 +132,7 @@ void TrayManager::onTrayActivated(QSystemTrayIcon::ActivationReason reason) {
 
 void TrayManager::onOpenImage() {
     MainWindow* w = mainWindow();
-    w->show();
+    w->showMaximized();
     w->raise();
     w->activateWindow();
     w->openFileDialog();
@@ -140,7 +140,7 @@ void TrayManager::onOpenImage() {
 
 void TrayManager::onOpenEditor() {
     MainWindow* w = mainWindow();
-    w->show();
+    w->showMaximized();
     w->raise();
     w->activateWindow();
 }

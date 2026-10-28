@@ -147,6 +147,7 @@ void CanvasView::zoomOut() {
 
 void CanvasView::zoomActual() {
     applyZoom(1.0);
+    if (m_scene) centerOn(m_scene->sceneRect().center());
 }
 
 void CanvasView::zoomFit() {
@@ -293,7 +294,7 @@ void CanvasView::showEvent(QShowEvent* event) {
     if (!m_initialFitDone) {
         m_initialFitDone = true;
         QTimer::singleShot(0, this, [this]() {
-            zoomFit();
+            zoomActual();
         });
     }
 }
@@ -304,7 +305,7 @@ void CanvasView::resizeEvent(QResizeEvent* event) {
     if (!m_initialFitDone && viewport()->width() > 50 && viewport()->height() > 50) {
         m_initialFitDone = true;
         QTimer::singleShot(0, this, [this]() {
-            zoomFit();
+            zoomActual();
         });
     }
     updateFloatingBarPosition();

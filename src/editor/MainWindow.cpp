@@ -32,6 +32,7 @@ MainWindow::MainWindow(QWidget* parent)
     setWindowTitle("SuperShot");
     setWindowIcon(IconManager::getAppIcon());
     resize(1020, 720);
+    setWindowState(Qt::WindowMaximized);
 
     m_tabWidget = new QTabWidget(this);
     m_tabWidget->setTabsClosable(true);
@@ -58,7 +59,7 @@ MainWindow::MainWindow(QWidget* parent)
 
     // Restore window if capture was cancelled
     connect(&CaptureManager::instance(), &CaptureManager::captureCancelled, this, [this]() {
-        show();
+        showMaximized();
         raise();
         activateWindow();
     });
@@ -586,10 +587,10 @@ void MainWindow::addImageTab(const QPixmap& pixmap, const QString& title) {
     int idx = m_tabWidget->addTab(view, tabTitle);
     m_tabWidget->setCurrentIndex(idx);
 
-    show();
+    showMaximized();
     raise();
     activateWindow();
-    QTimer::singleShot(0, view, &CanvasView::zoomFit);
+    QTimer::singleShot(0, view, &CanvasView::zoomActual);
 }
 
 void MainWindow::createBlankTab(int width, int height) {
@@ -1587,5 +1588,12 @@ void MainWindow::closeEvent(QCloseEvent* event) {
             }
         }
         event->accept();
+    }
+}
+
+void MainWindow::showEvent(QShowEvent* event) {
+    QMainWindow::showEvent(event);
+    if (!isMaximized()) {
+        showMaximized();
     }
 }

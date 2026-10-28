@@ -86,6 +86,7 @@ private slots:
     void testPhotoshopStyleCropping();
     void testCanvasBoundedAnnotations();
     void testTrayIconSize();
+    void testMaximizedAndDefault100Zoom();
 };
 
 void TestEditorTools::initTestCase() {
@@ -732,7 +733,7 @@ void TestEditorTools::testAboutDialogUpdateControls() {
     QVERIFY(status != nullptr);
     QCOMPARE(btn->text(), QString("Check for Updates"));
     QVERIFY(btn->isEnabled());
-    QVERIFY(status->text().contains("1.37.1") || status->text().contains("SuperShot"));
+    QVERIFY(status->text().contains("1.37.2") || status->text().contains("SuperShot"));
 
     // Simulate checkStarted signal
     emit UpdateManager::instance().checkStarted();
@@ -745,7 +746,7 @@ void TestEditorTools::testAboutDialogUpdateControls() {
     QVERIFY(status->text().contains("1.38.0"));
 
     // Simulate checkFinished with up to date
-    emit UpdateManager::instance().checkFinished(false, "v1.37.1", "https://github.com/uri-travoski/supershot/releases/tag/v1.37.1");
+    emit UpdateManager::instance().checkFinished(false, "v1.37.2", "https://github.com/uri-travoski/supershot/releases/tag/v1.37.2");
     QVERIFY(btn->isEnabled());
     QVERIFY(status->text().contains("up to date"));
 
@@ -2194,6 +2195,21 @@ void TestEditorTools::testTrayIconSize() {
     QCOMPARE(img.pixelColor(img.width() - 1, 0).alpha(), 0);
     QCOMPARE(img.pixelColor(0, img.height() - 1).alpha(), 0);
     QCOMPARE(img.pixelColor(img.width() - 1, img.height() - 1).alpha(), 0);
+}
+
+void TestEditorTools::testMaximizedAndDefault100Zoom() {
+    MainWindow win;
+    win.show();
+    QVERIFY(win.isMaximized() || (win.windowState() & Qt::WindowMaximized));
+
+    QPixmap pix(800, 600);
+    pix.fill(Qt::blue);
+    win.addImageTab(pix, "Zoom100Test");
+    QApplication::processEvents();
+
+    CanvasView* view = win.currentView();
+    QVERIFY(view != nullptr);
+    QCOMPARE(view->zoomFactor(), 1.0);
 }
 
 int main(int argc, char** argv) {
