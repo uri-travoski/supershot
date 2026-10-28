@@ -732,7 +732,7 @@ void TestEditorTools::testAboutDialogUpdateControls() {
     QVERIFY(status != nullptr);
     QCOMPARE(btn->text(), QString("Check for Updates"));
     QVERIFY(btn->isEnabled());
-    QVERIFY(status->text().contains("1.35.2") || status->text().contains("SuperShot"));
+    QVERIFY(status->text().contains("1.35.3") || status->text().contains("SuperShot"));
 
     // Simulate checkStarted signal
     emit UpdateManager::instance().checkStarted();
@@ -745,7 +745,7 @@ void TestEditorTools::testAboutDialogUpdateControls() {
     QVERIFY(status->text().contains("1.36.0"));
 
     // Simulate checkFinished with up to date
-    emit UpdateManager::instance().checkFinished(false, "v1.35.2", "https://github.com/uri-travoski/supershot/releases/tag/v1.35.2");
+    emit UpdateManager::instance().checkFinished(false, "v1.35.3", "https://github.com/uri-travoski/supershot/releases/tag/v1.35.3");
     QVERIFY(btn->isEnabled());
     QVERIFY(status->text().contains("up to date"));
 
