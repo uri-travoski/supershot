@@ -22,7 +22,7 @@ UpdateManager::UpdateManager(QObject* parent)
 QString UpdateManager::currentVersion() const {
     QString ver = QCoreApplication::applicationVersion();
     if (ver.isEmpty()) {
-        ver = "1.37";
+        ver = "1.37.1";
     }
     return ver;
 }
@@ -89,15 +89,30 @@ void UpdateManager::onReplyFinished(QNetworkReply* reply) {
         parent = QApplication::activeWindow();
     }
 
+    static const char* kDarkMessageBoxStyle =
+        "QMessageBox { background-color: #242424; color: #ffffff; }"
+        "QLabel { color: #ffffff; background: transparent; font-size: 13px; }"
+        "QLabel#qt_msgbox_label { color: #ffffff; font-size: 14px; font-weight: bold; }"
+        "QLabel#qt_msgbox_informativelabel { color: #ffffff; font-size: 12px; }"
+        "QTextEdit { background-color: #1a1a1a; color: #ffffff; border: 1px solid #444444; border-radius: 4px; padding: 4px; font-size: 12px; }"
+        "QPushButton { background-color: #383838; color: #ffffff; border: 1px solid #555555; border-radius: 4px; padding: 6px 16px; min-width: 80px; font-size: 12px; }"
+        "QPushButton:hover { background-color: #484848; border-color: #777777; }"
+        "QPushButton:pressed { background-color: #222222; border-color: #30e500; }"
+        "QPushButton:default { background-color: #2e7d32; border: 1px solid #4caf50; color: #ffffff; font-weight: bold; }"
+        "QPushButton:default:hover { background-color: #388e3c; }";
+
     if (reply->error() != QNetworkReply::NoError) {
         QString err = reply->errorString();
         emit checkError(err);
         if (!m_silentIfUpToDate) {
-            QMessageBox::warning(
-                parent,
-                tr("Update Check Failed"),
-                tr("Could not check for updates:\n%1").arg(err)
-            );
+            QMessageBox box(parent);
+            box.setWindowTitle(tr("Update Check Failed"));
+            box.setIcon(QMessageBox::Warning);
+            box.setText(tr("Could not check for updates"));
+            box.setInformativeText(err);
+            box.setStyleSheet(kDarkMessageBoxStyle);
+            box.addButton(QMessageBox::Ok);
+            box.exec();
         }
         return;
     }
@@ -108,7 +123,14 @@ void UpdateManager::onReplyFinished(QNetworkReply* reply) {
         QString err = tr("Invalid response received from GitHub.");
         emit checkError(err);
         if (!m_silentIfUpToDate) {
-            QMessageBox::warning(parent, tr("Update Check Failed"), err);
+            QMessageBox box(parent);
+            box.setWindowTitle(tr("Update Check Failed"));
+            box.setIcon(QMessageBox::Warning);
+            box.setText(tr("Could not check for updates"));
+            box.setInformativeText(err);
+            box.setStyleSheet(kDarkMessageBoxStyle);
+            box.addButton(QMessageBox::Ok);
+            box.exec();
         }
         return;
     }
@@ -135,6 +157,11 @@ void UpdateManager::onReplyFinished(QNetworkReply* reply) {
             tr("Current version: %1\nLatest version: %2\n\nWould you like to open the GitHub release page to update?")
             .arg(currentVersion(), tagName)
         );
+        QString body = obj.value("body").toString().trimmed();
+        if (!body.isEmpty()) {
+            box.setDetailedText(body);
+        }
+        box.setStyleSheet(kDarkMessageBoxStyle);
         QPushButton* updateBtn = box.addButton(tr("Yes, Update"), QMessageBox::AcceptRole);
         QPushButton* laterBtn = box.addButton(tr("No, Later"), QMessageBox::RejectRole);
         box.setDefaultButton(updateBtn);
@@ -145,11 +172,13 @@ void UpdateManager::onReplyFinished(QNetworkReply* reply) {
         }
     } else {
         if (!m_silentIfUpToDate) {
-            QMessageBox::information(
-                parent,
-                tr("SuperShot is Up to Date"),
-                tr("You are running the latest version of SuperShot (v%1).").arg(currentVersion())
-            );
+            QMessageBox box(parent);
+            box.setWindowTitle(tr("SuperShot is Up to Date"));
+            box.setIcon(QMessageBox::Information);
+            box.setText(tr("You are running the latest version of SuperShot (v%1).").arg(currentVersion()));
+            box.setStyleSheet(kDarkMessageBoxStyle);
+            box.addButton(QMessageBox::Ok);
+            box.exec();
         }
     }
 }

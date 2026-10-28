@@ -171,6 +171,11 @@ void MainWindow::applyTheme(const QString& theme) {
             "QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0px; background: none; border: none; }"
             "QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical { background: none; }"
             "QScrollBar::corner { background: #202020; border: none; }"
+            "QMessageBox { background-color: #242424; color: #ffffff; }"
+            "QMessageBox QLabel { color: #ffffff; background: transparent; }"
+            "QMessageBox QPushButton { background-color: #383838; color: #ffffff; border: 1px solid #555555; border-radius: 4px; padding: 6px 16px; min-width: 80px; font-size: 12px; }"
+            "QMessageBox QPushButton:hover { background-color: #484848; border-color: #777777; }"
+            "QMessageBox QTextEdit { background-color: #1a1a1a; color: #ffffff; border: 1px solid #444444; }"
         );
         m_newTabBtn->setStyleSheet("QPushButton { font-weight: bold; font-size: 14px; background: transparent; color: #cccccc; border: none; padding: 4px 10px; } QPushButton:hover { background: #383838; border-radius: 4px; }");
         if (m_resetBadgeBtn) {

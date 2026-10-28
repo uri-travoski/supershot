@@ -15,8 +15,12 @@ AboutDialog::AboutDialog(QWidget* parent)
     : QDialog(parent)
 {
     setWindowTitle(tr("About SuperShot"));
-    resize(440, 420);
-    setStyleSheet("QDialog { background-color: #242424; color: #ffffff; }");
+    setStyleSheet(
+        "QDialog { background-color: #242424; color: #ffffff; }"
+        "QMessageBox { background-color: #242424; color: #ffffff; }"
+        "QMessageBox QLabel { color: #ffffff; background: transparent; }"
+        "QMessageBox QPushButton { background-color: #383838; color: #ffffff; border: 1px solid #555555; border-radius: 4px; padding: 6px 16px; min-width: 80px; }"
+    );
 
     QVBoxLayout* layout = new QVBoxLayout(this);
     layout->setSpacing(14);
@@ -31,7 +35,7 @@ AboutDialog::AboutDialog(QWidget* parent)
     QLabel* nameLabel = new QLabel("SuperShot", this);
     nameLabel->setStyleSheet("font-size: 22px; font-weight: bold; color: #30e500;");
     QString appVer = QCoreApplication::applicationVersion();
-    if (appVer.isEmpty()) appVer = "1.37";
+    if (appVer.isEmpty()) appVer = "1.37.1";
     QLabel* verLabel = new QLabel(tr("Version %1 (Linux x86_64)").arg(appVer), this);
     verLabel->setStyleSheet("font-size: 12px; color: #aaaaaa;");
     titleLayout->addWidget(nameLabel);
