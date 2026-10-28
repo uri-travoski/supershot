@@ -28,6 +28,8 @@ jobs:
             g++ \
             qt6-base-dev \
             qt6-svg-dev \
+            qt6-wayland \
+            libqt6waylandclient6 \
             libx11-dev \
             libxtst-dev \
             rpm \

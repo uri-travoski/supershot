@@ -2,10 +2,12 @@
 
 #include <QObject>
 #include <QPixmap>
+#include <QColor>
 #include <QTimer>
 
 class RegionSnippingOverlay;
 class ColorPickerOverlay;
+class WaylandCaptureBackend;
 
 class CaptureManager : public QObject {
     Q_OBJECT
@@ -17,10 +19,13 @@ public:
     void captureRegion();
     void pickColor();
 
+    WaylandCaptureBackend* waylandBackend();
+
 signals:
     void screenshotReady(const QPixmap& pixmap);
     void colorPicked(const QColor& color, const QString& hex);
     void captureCancelled();
+    void captureFailed(const QString& reason);
 
 private slots:
     void doCaptureFullscreen();
@@ -35,4 +40,5 @@ private:
 
     RegionSnippingOverlay* m_regionOverlay = nullptr;
     ColorPickerOverlay* m_colorOverlay = nullptr;
+    WaylandCaptureBackend* m_waylandBackend = nullptr;
 };

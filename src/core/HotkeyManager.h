@@ -23,11 +23,18 @@ public:
     bool init();
     void updateHotkeys();
 
+    void onPortalActivated(const QString& actionId);
+
 signals:
     void hotkeyTriggered(HotkeyAction action);
 
 private:
     HotkeyManager();
 
+    void requestPortalShortcuts();
+    bool initX11();
+    void updateX11Hotkeys();
+
     std::unique_ptr<Impl> m_impl;
+    bool m_initialized = false;
 };

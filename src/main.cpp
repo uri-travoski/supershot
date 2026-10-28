@@ -13,15 +13,20 @@
 #include "core/UpdateManager.h"
 #include "core/IconManager.h"
 #include "core/CrashHandler.h"
+#include "core/PlatformHelper.h"
 #include "tray/TrayManager.h"
 #include "capture/CaptureManager.h"
 #include "editor/MainWindow.h"
 
 int main(int argc, char* argv[]) {
+    if (qEnvironmentVariableIsEmpty("QT_QPA_PLATFORM")) {
+        qputenv("QT_QPA_PLATFORM", "wayland;xcb");
+    }
+
     QApplication app(argc, argv);
     app.setApplicationName("supershot");
     app.setApplicationDisplayName("SuperShot");
-    app.setApplicationVersion("1.37.2");
+    app.setApplicationVersion("1.38.0");
     app.setOrganizationName("SuperShot");
     app.setWindowIcon(IconManager::getAppIcon());
 

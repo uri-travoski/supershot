@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 project(supershot
-    VERSION 1.37.2
+    VERSION 1.38.0
     DESCRIPTION "Lightweight Screenshot & Annotation Tool for Linux"
     LANGUAGES CXX
 )
@@ -13,7 +13,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Svg Network Test)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Svg Network DBus Test)
 find_package(X11 REQUIRED)
 
 set(SOURCES
@@ -26,6 +26,7 @@ set(SOURCES
     src/core/CrashHandler.cpp
     src/tray/TrayManager.cpp
     src/capture/CaptureManager.cpp
+    src/capture/WaylandCaptureBackend.cpp
     src/capture/RegionSnippingOverlay.cpp
     src/capture/ColorPickerOverlay.cpp
     src/editor/MainWindow.cpp
@@ -62,7 +63,9 @@ target_link_libraries(supershot PRIVATE
     Qt6::Core
     Qt6::Gui
     Qt6::Widgets
-    Qt6::Svg Qt6::Network
+    Qt6::Svg
+    Qt6::Network
+    Qt6::DBus
     ${X11_LIBRARIES}
 )
 
@@ -82,6 +85,7 @@ add_executable(test_editor_tools
     src/core/CrashHandler.cpp
     src/tray/TrayManager.cpp
     src/capture/CaptureManager.cpp
+    src/capture/WaylandCaptureBackend.cpp
     src/capture/RegionSnippingOverlay.cpp
     src/capture/ColorPickerOverlay.cpp
     src/editor/MainWindow.cpp
@@ -116,6 +120,7 @@ target_link_libraries(test_editor_tools PRIVATE
     Qt6::Widgets
     Qt6::Svg
     Qt6::Network
+    Qt6::DBus
     Qt6::Test
     ${X11_LIBRARIES}
 )
@@ -173,7 +178,7 @@ set(CPACK_DEBIAN_PACKAGE_SECTION "graphics")
 set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
 set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS OFF)
 set(CPACK_DEBIAN_PACKAGE_DEPENDS
-    "libc6 (>= 2.34), libgcc-s1 (>= 3.0), libstdc++6 (>= 5), libx11-6, libqt6core6t64 (>= 6.1.2) | libqt6core6 (>= 6.1.2), libqt6gui6t64 (>= 6.1.2) | libqt6gui6 (>= 6.1.2), libqt6widgets6t64 (>= 6.1.2) | libqt6widgets6 (>= 6.1.2), libqt6network6t64 (>= 6.1.2) | libqt6network6 (>= 6.1.2), libqt6svg6t64 (>= 6.1.2) | libqt6svg6 (>= 6.1.2)"
+    "libc6 (>= 2.34), libgcc-s1 (>= 3.0), libstdc++6 (>= 5), libx11-6, libqt6core6t64 (>= 6.1.2) | libqt6core6 (>= 6.1.2), libqt6gui6t64 (>= 6.1.2) | libqt6gui6 (>= 6.1.2), libqt6widgets6t64 (>= 6.1.2) | libqt6widgets6 (>= 6.1.2), libqt6network6t64 (>= 6.1.2) | libqt6network6 (>= 6.1.2), libqt6svg6t64 (>= 6.1.2) | libqt6svg6 (>= 6.1.2), libqt6dbus6t64 (>= 6.1.2) | libqt6dbus6 (>= 6.1.2)"
 )
 set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA
     "${CMAKE_CURRENT_SOURCE_DIR}/packaging/debian/postinst;${CMAKE_CURRENT_SOURCE_DIR}/packaging/debian/postrm"

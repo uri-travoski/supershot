@@ -22,6 +22,9 @@
 #include "editor/MainWindow.h"
 #include "dialogs/AboutDialog.h"
 #include "core/ClipboardHelper.h"
+#include "core/PlatformHelper.h"
+#include "capture/CaptureManager.h"
+#include "capture/WaylandCaptureBackend.h"
 #include <QLabel>
 #include <QSpinBox>
 #include <QPushButton>
@@ -31,6 +34,8 @@
 #include <QMenuBar>
 #include <QScrollBar>
 #include <QTextCursor>
+#include <QTemporaryFile>
+#include <QSvgRenderer>
 
 class TestScene : public CanvasScene {
 public:
@@ -87,6 +92,10 @@ private slots:
     void testCanvasBoundedAnnotations();
     void testTrayIconSize();
     void testMaximizedAndDefault100Zoom();
+    void testPlatformDetection();
+    void testPortalResponsesAndErrorHandling();
+    void testWaylandCaptureManagerAndColorPicker();
+    void testSaveIconEnlarged();
 };
 
 void TestEditorTools::initTestCase() {
@@ -733,7 +742,7 @@ void TestEditorTools::testAboutDialogUpdateControls() {
     QVERIFY(status != nullptr);
     QCOMPARE(btn->text(), QString("Check for Updates"));
     QVERIFY(btn->isEnabled());
-    QVERIFY(status->text().contains("1.37.2") || status->text().contains("SuperShot"));
+    QVERIFY(status->text().contains("1.38.0") || status->text().contains("SuperShot"));
 
     // Simulate checkStarted signal
     emit UpdateManager::instance().checkStarted();
@@ -741,12 +750,12 @@ void TestEditorTools::testAboutDialogUpdateControls() {
     QVERIFY(status->text().contains("Checking"));
 
     // Simulate checkFinished with update available
-    emit UpdateManager::instance().checkFinished(true, "v1.38.0", "https://github.com/uri-travoski/supershot/releases/tag/v1.38.0");
+    emit UpdateManager::instance().checkFinished(true, "v1.39.0", "https://github.com/uri-travoski/supershot/releases/tag/v1.39.0");
     QVERIFY(btn->isEnabled());
-    QVERIFY(status->text().contains("1.38.0"));
+    QVERIFY(status->text().contains("1.39.0"));
 
     // Simulate checkFinished with up to date
-    emit UpdateManager::instance().checkFinished(false, "v1.37.2", "https://github.com/uri-travoski/supershot/releases/tag/v1.37.2");
+    emit UpdateManager::instance().checkFinished(false, "v1.38.0", "https://github.com/uri-travoski/supershot/releases/tag/v1.38.0");
     QVERIFY(btn->isEnabled());
     QVERIFY(status->text().contains("up to date"));
 
@@ -2210,6 +2219,117 @@ void TestEditorTools::testMaximizedAndDefault100Zoom() {
     CanvasView* view = win.currentView();
     QVERIFY(view != nullptr);
     QCOMPARE(view->zoomFactor(), 1.0);
+}
+
+void TestEditorTools::testPlatformDetection() {
+    Platform::Type p = Platform::current();
+    QString name = Platform::name();
+    QVERIFY(!name.isEmpty());
+    if (Platform::isWayland()) {
+        QCOMPARE(p, Platform::Type::Wayland);
+        QCOMPARE(name, QString("Wayland"));
+    } else {
+        QCOMPARE(p, Platform::Type::X11);
+        QCOMPARE(name, QString("X11"));
+    }
+}
+
+void TestEditorTools::testPortalResponsesAndErrorHandling() {
+    WaylandCaptureBackend mgr;
+
+    // 1. Test Screenshot Response = 0 with a temporary image
+    QTemporaryFile tempImg;
+    tempImg.setAutoRemove(true);
+    if (tempImg.open()) {
+        QPixmap(100, 100).save(tempImg.fileName(), "PNG");
+        tempImg.close();
+
+        bool gotPix = false;
+        auto conn = connect(&mgr, &WaylandCaptureBackend::screenshotReady, [&gotPix](const QPixmap& p) {
+            if (!p.isNull()) gotPix = true;
+        });
+
+        QVariantMap results;
+        results["uri"] = QUrl::fromLocalFile(tempImg.fileName()).toString();
+        mgr.handlePortalResponse(0, results, false);
+        QVERIFY(gotPix);
+        disconnect(conn);
+    }
+
+    // 2. Test Screenshot Response = 1 (User Cancelled)
+    bool cancelled = false;
+    auto connCancel = connect(&mgr, &WaylandCaptureBackend::captureCancelled, [&cancelled]() {
+        cancelled = true;
+    });
+    mgr.handlePortalResponse(1, QVariantMap(), false);
+    QVERIFY(cancelled);
+    disconnect(connCancel);
+
+    // 3. Test Color Picker with QVariantList
+    bool colorGot = false;
+    QString hexOut;
+    auto connCol = connect(&mgr, &WaylandCaptureBackend::colorPicked, [&colorGot, &hexOut](const QColor& c, const QString& h) {
+        Q_UNUSED(c);
+        colorGot = true;
+        hexOut = h;
+    });
+    QVariantMap colResults;
+    QVariantList rgbList;
+    rgbList << 1.0 << 0.0 << 0.5; // (255, 0, 128) -> #FF0080
+    colResults["color"] = rgbList;
+    mgr.handlePortalResponse(0, colResults, true);
+    QVERIFY(colorGot);
+    QCOMPARE(hexOut, QString("#FF0080"));
+    disconnect(connCol);
+}
+
+void TestEditorTools::testWaylandCaptureManagerAndColorPicker() {
+    WaylandCaptureBackend mgr;
+
+    bool screenshotSignalHooked = false;
+    auto conn = connect(&mgr, &WaylandCaptureBackend::screenshotReady, [&screenshotSignalHooked](const QPixmap& p) {
+        if (!p.isNull()) screenshotSignalHooked = true;
+    });
+
+    mgr.captureFullscreen();
+
+    bool colorSignalReceived = false;
+    auto connColor = connect(&mgr, &WaylandCaptureBackend::colorPicked, [&colorSignalReceived](const QColor& c, const QString& hex) {
+        Q_UNUSED(c);
+        if (!hex.isEmpty()) colorSignalReceived = true;
+    });
+    mgr.pickColor();
+
+    disconnect(conn);
+    disconnect(connColor);
+}
+
+void TestEditorTools::testSaveIconEnlarged() {
+    QSvgRenderer renderer(QString(":/icons/save.svg"));
+    QVERIFY(renderer.isValid());
+
+    QImage img(32, 32, QImage::Format_ARGB32_Premultiplied);
+    img.fill(Qt::transparent);
+    QPainter p(&img);
+    renderer.render(&p, QRectF(0, 0, 32, 32));
+    p.end();
+
+    int minX = 32, maxX = 0, minY = 32, maxY = 0;
+    for (int y = 0; y < 32; ++y) {
+        for (int x = 0; x < 32; ++x) {
+            if (img.pixelColor(x, y).alpha() > 20) {
+                minX = std::min(minX, x);
+                maxX = std::max(maxX, x);
+                minY = std::min(minY, y);
+                maxY = std::max(maxY, y);
+            }
+        }
+    }
+    int width = maxX - minX + 1;
+    int height = maxY - minY + 1;
+    qDebug() << "testSaveIconEnlarged width:" << width << "height:" << height;
+    QVERIFY(width >= 20 && width <= 26);
+    QVERIFY(height >= 20 && height <= 26);
 }
 
 int main(int argc, char** argv) {

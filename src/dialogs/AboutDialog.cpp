@@ -1,6 +1,7 @@
 #include "AboutDialog.h"
 #include "../core/IconManager.h"
 #include "../core/UpdateManager.h"
+#include "../core/PlatformHelper.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QIcon>
@@ -35,8 +36,8 @@ AboutDialog::AboutDialog(QWidget* parent)
     QLabel* nameLabel = new QLabel("SuperShot", this);
     nameLabel->setStyleSheet("font-size: 22px; font-weight: bold; color: #30e500;");
     QString appVer = QCoreApplication::applicationVersion();
-    if (appVer.isEmpty()) appVer = "1.37.2";
-    QLabel* verLabel = new QLabel(tr("Version %1 (Linux x86_64)").arg(appVer), this);
+    if (appVer.isEmpty()) appVer = "1.38.0";
+    QLabel* verLabel = new QLabel(tr("Version %1 (%2 x86_64)").arg(appVer, Platform::name()), this);
     verLabel->setStyleSheet("font-size: 12px; color: #aaaaaa;");
     titleLayout->addWidget(nameLabel);
     titleLayout->addWidget(verLabel);
@@ -46,7 +47,7 @@ AboutDialog::AboutDialog(QWidget* parent)
 
     QLabel* descLabel = new QLabel(
         tr("<b>SuperShot</b> is a blazing fast, ultra-lightweight screenshot capture "
-           "and annotation tool for Linux with ksnip-inspired workflows.<br><br>"
+           "and annotation tool for Linux (Wayland & X11) with ksnip-inspired workflows.<br><br>"
            "• Multi-tab image & annotation editing<br>"
            "• Full annotation tools (Pen, Arrow, Shapes, Text, Badges, Blur)<br>"
            "• Select tool with Copy, Cut, Delete, and Crop raster actions<br>"

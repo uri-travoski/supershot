@@ -1,8 +1,12 @@
 #include "HotkeyManager.h"
 #include "SettingsManager.h"
+#include "PlatformHelper.h"
 
 #include <QSocketNotifier>
 #include <QList>
+#include <QDBusConnection>
+#include <QDBusMessage>
+#include <QDBusPendingCall>
 #include <QDebug>
 
 // Include X11 headers after Qt headers and undefine conflicting macros
@@ -123,9 +127,21 @@ static void grabSingleShortcut(HotkeyManager::Impl* impl, HotkeyAction action, c
 }
 
 bool HotkeyManager::init() {
+    if (m_initialized) return true;
+    m_initialized = true;
+
+    if (Platform::isWayland()) {
+        requestPortalShortcuts();
+        return true;
+    }
+
+    return initX11();
+}
+
+bool HotkeyManager::initX11() {
     m_impl->display = XOpenDisplay(nullptr);
     if (!m_impl->display) {
-        qWarning() << "HotkeyManager: Could not open X11 display";
+        qWarning() << "HotkeyManager: Could not open X11 display (running non-X11 environment)";
         return false;
     }
 
@@ -150,11 +166,19 @@ bool HotkeyManager::init() {
         }
     });
 
-    updateHotkeys();
+    updateX11Hotkeys();
     return true;
 }
 
 void HotkeyManager::updateHotkeys() {
+    if (Platform::isWayland()) {
+        requestPortalShortcuts();
+    } else {
+        updateX11Hotkeys();
+    }
+}
+
+void HotkeyManager::updateX11Hotkeys() {
     if (!m_impl->display || !m_impl->root) return;
 
     for (const auto& grab : m_impl->grabbedKeys) {
@@ -171,4 +195,35 @@ void HotkeyManager::updateHotkeys() {
     grabSingleShortcut(m_impl.get(), HotkeyAction::Region, s.hotkeyRegion());
     grabSingleShortcut(m_impl.get(), HotkeyAction::ColorPicker, s.hotkeyColorPicker());
     grabSingleShortcut(m_impl.get(), HotkeyAction::Editor, s.hotkeyEditor());
+}
+
+void HotkeyManager::requestPortalShortcuts() {
+    QDBusConnection bus = QDBusConnection::sessionBus();
+    if (!bus.isConnected()) return;
+
+    QDBusMessage msg = QDBusMessage::createMethodCall(
+        "org.freedesktop.portal.Desktop",
+        "/org/freedesktop/portal/desktop",
+        "org.freedesktop.portal.GlobalShortcuts",
+        "CreateSession"
+    );
+
+    QVariantMap options;
+    options["handle_token"] = "sshot_gs_session";
+    options["session_handle_token"] = "sshot_gs_token";
+    msg << options;
+
+    bus.asyncCall(msg);
+}
+
+void HotkeyManager::onPortalActivated(const QString& actionId) {
+    if (actionId == "fullscreen") {
+        emit hotkeyTriggered(HotkeyAction::Fullscreen);
+    } else if (actionId == "region") {
+        emit hotkeyTriggered(HotkeyAction::Region);
+    } else if (actionId == "colorpicker") {
+        emit hotkeyTriggered(HotkeyAction::ColorPicker);
+    } else if (actionId == "editor") {
+        emit hotkeyTriggered(HotkeyAction::Editor);
+    }
 }

@@ -1,10 +1,13 @@
 #include "CaptureManager.h"
 #include "RegionSnippingOverlay.h"
 #include "ColorPickerOverlay.h"
+#include "WaylandCaptureBackend.h"
+#include "../core/PlatformHelper.h"
 #include "../core/SettingsManager.h"
 #include "../core/ClipboardHelper.h"
 #include <QGuiApplication>
 #include <QScreen>
+#include <QDebug>
 #include <malloc.h>
 
 CaptureManager& CaptureManager::instance() {
@@ -13,6 +16,17 @@ CaptureManager& CaptureManager::instance() {
 }
 
 CaptureManager::CaptureManager() {
+}
+
+WaylandCaptureBackend* CaptureManager::waylandBackend() {
+    if (!m_waylandBackend) {
+        m_waylandBackend = new WaylandCaptureBackend(this);
+        connect(m_waylandBackend, &WaylandCaptureBackend::screenshotReady, this, &CaptureManager::onRegionCaptured);
+        connect(m_waylandBackend, &WaylandCaptureBackend::colorPicked, this, &CaptureManager::onColorPicked);
+        connect(m_waylandBackend, &WaylandCaptureBackend::captureCancelled, this, &CaptureManager::captureCancelled);
+        connect(m_waylandBackend, &WaylandCaptureBackend::captureFailed, this, &CaptureManager::captureFailed);
+    }
+    return m_waylandBackend;
 }
 
 RegionSnippingOverlay* CaptureManager::regionOverlay() {
@@ -35,15 +49,27 @@ ColorPickerOverlay* CaptureManager::colorOverlay() {
 
 void CaptureManager::captureFullscreen() {
     int delay = SettingsManager::instance().captureDelay();
+    auto runCapture = [this]() {
+        if (Platform::isWayland()) {
+            waylandBackend()->captureFullscreen();
+        } else {
+            doCaptureFullscreen();
+        }
+    };
+
     if (delay > 0) {
-        QTimer::singleShot(delay * 1000, this, &CaptureManager::doCaptureFullscreen);
+        QTimer::singleShot(delay * 1000, this, runCapture);
     } else {
-        doCaptureFullscreen();
+        runCapture();
     }
 }
 
 void CaptureManager::doCaptureFullscreen() {
     QScreen* screen = QGuiApplication::primaryScreen();
+    if (!screen) {
+        emit captureFailed(tr("No primary screen detected"));
+        return;
+    }
     QRect virtualGeometry = screen->virtualGeometry();
     QPixmap grab = screen->grabWindow(0, virtualGeometry.x(), virtualGeometry.y(), virtualGeometry.width(), virtualGeometry.height());
     grab.setDevicePixelRatio(1.0);
@@ -57,17 +83,27 @@ void CaptureManager::doCaptureFullscreen() {
 
 void CaptureManager::captureRegion() {
     int delay = SettingsManager::instance().captureDelay();
-    if (delay > 0) {
-        QTimer::singleShot(delay * 1000, this, [this]() {
+    auto runCapture = [this]() {
+        if (Platform::isWayland()) {
+            waylandBackend()->captureRegion();
+        } else {
             regionOverlay()->startSnipping();
-        });
+        }
+    };
+
+    if (delay > 0) {
+        QTimer::singleShot(delay * 1000, this, runCapture);
     } else {
-        regionOverlay()->startSnipping();
+        runCapture();
     }
 }
 
 void CaptureManager::pickColor() {
-    colorOverlay()->startPicking();
+    if (Platform::isWayland()) {
+        waylandBackend()->pickColor();
+    } else {
+        colorOverlay()->startPicking();
+    }
 }
 
 void CaptureManager::onRegionCaptured(const QPixmap& pixmap) {

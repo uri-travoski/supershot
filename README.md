@@ -52,12 +52,18 @@ It is designed to consume minimal system resources (~7–12 MB private RAM idle 
   - Properties Bar: Stroke color picker, Fill color picker, Stroke width (1–50px), Stepper reset.
   - Status Bar: Image dimensions, zoom factor, and cursor coordinates.
 
+- **Unified Wayland & X11 Support**:
+  - Automatically detects the active desktop session without separate packages.
+  - On **Wayland**: Uses native XDG Desktop Portals (`org.freedesktop.portal.Screenshot`, `PickColor`, `GlobalShortcuts`).
+  - On **X11**: Uses native X11 overlays (`QScreen::grabWindow`, snipping overlay loupe, `XGrabKey`).
+  - Single binary works seamlessly across all Linux environments!
+
 - **Settings, Themes & Autostart**:
   - **Dark / Light Theme**: Configurable under Settings. **Light Theme** gives a sleek, neutral **Grey UI** with high-contrast tool icons and grey canvas background; **Dark Theme** provides a clean dark styling. Changes apply live without restart.
   - **Start with PC**: Automatically creates `~/.config/autostart/supershot.desktop` to launch minimized in the system tray on login.
   - **Save Location**: Configurable default directory (e.g. `~/Pictures/Screenshots`).
   - **Formats**: PNG, JPG, BMP, WebP.
-  - **Global Hotkeys**: Global shortcuts for Fullscreen, Region, Color Picker, and Editor via X11.
+  - **Global Hotkeys**: Configurable global shortcuts for Fullscreen, Region, Color Picker, and Editor.
 
 ---
 
