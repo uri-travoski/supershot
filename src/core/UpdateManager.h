@@ -6,6 +6,7 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QWidget>
+#include <QPointer>
 
 class UpdateManager : public QObject {
     Q_OBJECT
@@ -39,7 +40,7 @@ private:
     QNetworkAccessManager* m_nam = nullptr;
     bool m_isChecking = false;
     bool m_silentIfUpToDate = false;
-    QWidget* m_parentWidget = nullptr;
+    QPointer<QWidget> m_parentWidget;
 
     QString m_latestVersion;
     QString m_releaseUrl;

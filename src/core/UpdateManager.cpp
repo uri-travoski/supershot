@@ -22,7 +22,7 @@ UpdateManager::UpdateManager(QObject* parent)
 QString UpdateManager::currentVersion() const {
     QString ver = QCoreApplication::applicationVersion();
     if (ver.isEmpty()) {
-        ver = "1.34";
+        ver = "1.35.2";
     }
     return ver;
 }
@@ -84,7 +84,7 @@ void UpdateManager::onReplyFinished(QNetworkReply* reply) {
     reply->deleteLater();
     m_isChecking = false;
 
-    QWidget* parent = m_parentWidget;
+    QWidget* parent = m_parentWidget.data();
     if (!parent) {
         parent = QApplication::activeWindow();
     }

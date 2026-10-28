@@ -9,6 +9,7 @@
 #include <QApplication>
 #include <QIcon>
 #include <QStyle>
+#include <QDesktopServices>
 
 TrayManager::TrayManager(std::function<MainWindow*()> getMainWindowFunc, QObject* parent)
     : QObject(parent)
@@ -22,6 +23,25 @@ TrayManager::TrayManager(std::function<MainWindow*()> getMainWindowFunc, QObject
 
     connect(m_trayIcon, &QSystemTrayIcon::activated, this, &TrayManager::onTrayActivated);
     connect(&SettingsManager::instance(), &SettingsManager::themeChanged, this, &TrayManager::updateMenuTheme);
+
+    connect(&UpdateManager::instance(), &UpdateManager::checkFinished, this, [this](bool updateAvailable, const QString& latestVersion, const QString& releaseUrl) {
+        if (updateAvailable && m_trayIcon && m_trayIcon->isVisible()) {
+            m_latestReleaseUrl = releaseUrl;
+            m_trayIcon->showMessage(
+                tr("Update Available - SuperShot"),
+                tr("SuperShot %1 is available! Click to view release.").arg(latestVersion),
+                QSystemTrayIcon::Information,
+                10000
+            );
+        }
+    });
+
+    connect(m_trayIcon, &QSystemTrayIcon::messageClicked, this, [this]() {
+        if (!m_latestReleaseUrl.isEmpty()) {
+            QDesktopServices::openUrl(QUrl(m_latestReleaseUrl));
+            m_latestReleaseUrl.clear();
+        }
+    });
 }
 
 TrayManager::~TrayManager() {

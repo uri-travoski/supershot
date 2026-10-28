@@ -45,4 +45,6 @@ private:
     QAction* m_actSettings = nullptr;
     QAction* m_actAbout = nullptr;
     QAction* m_actQuit = nullptr;
+
+    QString m_latestReleaseUrl;
 };

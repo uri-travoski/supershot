@@ -31,8 +31,8 @@ This document outlines the complete test plan for **S-Shot** (Lightweight Screen
 | **MENU-08** | Edit → Reset Badge # | Resets badge numbering counter back to 1 | Automated (`testBadgeStepperAndResetNumbering`) | Resets next badge counter and toolbar spinbox to 1. |
 | **MENU-09** | View → Zoom Controls | Zoom In, Zoom Out, 100%, Fit to Window | Automated (`testCanvasViewDirectMousewheelZoom`) | Adjusts canvas view scale and updates status bar zoom percentage. |
 | **MENU-10** | Options → Settings | Opens preferences modal | Automated | Configures theme, hotkeys, auto-copy, magnifier, format, save location. |
-| **MENU-11** | Help → Check for Updates | Manual update check against GitHub releases API | Automated (`testUpdateManagerVersionComparison`) | Compares SemVer; prompts user to update if newer release exists. |
-| **MENU-12** | Help → About S-Shot | About dialog with version and licenses | Automated | Displays current version, description, and link to repository. |
+| **MENU-11** | Help → Check for Updates | Manual update check against GitHub releases API | Automated (`testUpdateManagerVersionComparison`, `testAboutDialogUpdateControls`) | Compares SemVer; prompts user to update if newer release exists. |
+| **MENU-12** | Help → About SuperShot | About dialog with version, RAM footprint, and update checker | Automated (`testAboutDialogUpdateControls`) | Displays current version, description, memory footprint, and interactive update check button. |
 
 ---
 

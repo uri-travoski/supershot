@@ -20,6 +20,7 @@
 #include "editor/items/BadgeItem.h"
 #include "editor/items/TextItem.h"
 #include "editor/MainWindow.h"
+#include "dialogs/AboutDialog.h"
 #include "core/ClipboardHelper.h"
 #include <QLabel>
 #include <QSpinBox>
@@ -65,6 +66,7 @@ private slots:
     void testTabCloseSaveDialogButtons();
     void testAutoCheckUpdatesSetting();
     void testUpdateManagerVersionComparison();
+    void testAboutDialogUpdateControls();
     void testIconManager();
     void testBadgeStepperAndResetNumbering();
     void testMainWindowBadgeIntegration();
@@ -719,6 +721,38 @@ void TestEditorTools::testUpdateManagerVersionComparison() {
     QVERIFY(!UpdateManager::isVersionNewer("v1.22", "1.23"));
     QVERIFY(!UpdateManager::isVersionNewer("v1.22.9", "1.23"));
     QVERIFY(!UpdateManager::isVersionNewer("v0.9.0", "1.23.0"));
+}
+
+void TestEditorTools::testAboutDialogUpdateControls() {
+    AboutDialog dlg;
+    QPushButton* btn = dlg.checkUpdatesButton();
+    QLabel* status = dlg.updateStatusLabel();
+
+    QVERIFY(btn != nullptr);
+    QVERIFY(status != nullptr);
+    QCOMPARE(btn->text(), QString("Check for Updates"));
+    QVERIFY(btn->isEnabled());
+    QVERIFY(status->text().contains("1.35.2") || status->text().contains("SuperShot"));
+
+    // Simulate checkStarted signal
+    emit UpdateManager::instance().checkStarted();
+    QVERIFY(!btn->isEnabled());
+    QVERIFY(status->text().contains("Checking"));
+
+    // Simulate checkFinished with update available
+    emit UpdateManager::instance().checkFinished(true, "v1.36.0", "https://github.com/uri-travoski/supershot/releases/tag/v1.36.0");
+    QVERIFY(btn->isEnabled());
+    QVERIFY(status->text().contains("1.36.0"));
+
+    // Simulate checkFinished with up to date
+    emit UpdateManager::instance().checkFinished(false, "v1.35.2", "https://github.com/uri-travoski/supershot/releases/tag/v1.35.2");
+    QVERIFY(btn->isEnabled());
+    QVERIFY(status->text().contains("up to date"));
+
+    // Simulate checkError
+    emit UpdateManager::instance().checkError("Connection timed out");
+    QVERIFY(btn->isEnabled());
+    QVERIFY(status->text().contains("failed"));
 }
 
 void TestEditorTools::testIconManager() {
