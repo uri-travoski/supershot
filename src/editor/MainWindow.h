@@ -158,6 +158,6 @@ private:
     QColor m_currentFillColor = Qt::transparent;
     QFont m_currentFont = QFont("Sans", 11, QFont::Bold);
     int m_currentStrokeWidth = 3;
-    int m_currentBlurLevel = 4;
+    int m_currentBlurLevel = 3;
     bool m_firstCloseNotification = true;
 };

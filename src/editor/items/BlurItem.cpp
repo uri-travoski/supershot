@@ -152,7 +152,15 @@ void BlurItem::applyBlur(const QPixmap& sourcePixmap) {
     int h = subImg.height();
 
     int level = qBound(1, m_blurLevel, 10);
-    int scaleFactor = (level >= 7) ? 4 : ((level >= 4) ? 2 : 1);
+    int scaleFactor = 1;
+    int radius = 2;
+    if (level <= 5) {
+        scaleFactor = 1;
+        radius = level + 1; // Levels 1-5: radius 2, 3, 4, 5, 6 (unscaled)
+    } else {
+        scaleFactor = 2;
+        radius = (level - 5) + 2; // Levels 6-10: radius 3, 4, 5, 6, 7 (2x downscaled, smooth high redaction)
+    }
 
     QImage procImg;
     if (scaleFactor > 1 && w > scaleFactor * 2 && h > scaleFactor * 2) {
@@ -160,8 +168,6 @@ void BlurItem::applyBlur(const QPixmap& sourcePixmap) {
     } else {
         procImg = subImg;
     }
-
-    int radius = level + 1;
     fastBoxBlur(procImg, radius);
     fastBoxBlur(procImg, radius);
     fastBoxBlur(procImg, radius);

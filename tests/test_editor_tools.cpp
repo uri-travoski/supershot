@@ -500,10 +500,10 @@ void TestEditorTools::testBucketFillTool() {
 
 void TestEditorTools::testDefaultBlurStrength() {
     CanvasScene scene;
-    QCOMPARE(scene.blurLevel(), 4);
+    QCOMPARE(scene.blurLevel(), 3);
 
     BlurItem blur;
-    QCOMPARE(blur.blurLevel(), 4);
+    QCOMPARE(blur.blurLevel(), 3);
 }
 
 void TestEditorTools::testSelectionPropertiesSync() {
@@ -513,10 +513,10 @@ void TestEditorTools::testSelectionPropertiesSync() {
     scene.setBasePixmap(base);
 
     // Add BlurItem
-    BlurItem* blur = new BlurItem(QRectF(20, 20, 50, 50), base, 4);
+    BlurItem* blur = new BlurItem(QRectF(20, 20, 50, 50), base, 3);
     scene.addItem(blur);
     blur->setSelected(true);
-    QCOMPARE(blur->blurLevel(), 4);
+    QCOMPARE(blur->blurLevel(), 3);
 
     // Modify selected blur's level
     blur->setBlurLevel(8);

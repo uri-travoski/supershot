@@ -451,7 +451,7 @@ void MainWindow::setupToolbars() {
 
     m_blurRadiusSpin = new QSpinBox(this);
     m_blurRadiusSpin->setRange(1, 10);
-    m_blurRadiusSpin->setValue(4);
+    m_blurRadiusSpin->setValue(3);
     m_blurRadiusSpin->setFixedWidth(55);
     m_blurRadiusSpin->setToolTip(tr("Blur intensity from 1 (light) to 10 (heavy redaction)"));
     connect(m_blurRadiusSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, &MainWindow::onBlurLevelChanged);

@@ -125,7 +125,7 @@ private:
     int m_strokeWidth = 3;
     QFont m_font = QFont("Sans", 11, QFont::Bold);
     int m_badgeCounter = 1;
-    int m_blurLevel = 4;
+    int m_blurLevel = 3;
 
     // Drawing state
     QPointF m_startPoint;

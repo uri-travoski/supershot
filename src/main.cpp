@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
     QApplication app(argc, argv);
     app.setApplicationName("supershot");
     app.setApplicationDisplayName("SuperShot");
-    app.setApplicationVersion("1.35.0");
+    app.setApplicationVersion("1.35.1");
     app.setOrganizationName("SuperShot");
     app.setWindowIcon(IconManager::getAppIcon());
 
