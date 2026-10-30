@@ -22,7 +22,12 @@ public:
     void setStartWithPC(bool val);
 
     QString saveLocation() const { return m_saveLocation; }
-    void setSaveLocation(const QString& val) { m_saveLocation = val; }
+    void setSaveLocation(const QString& val) {
+        m_saveLocation = val;
+        if (!m_saveLocation.isEmpty()) {
+            QDir().mkpath(m_saveLocation);
+        }
+    }
 
     QString defaultFormat() const { return m_defaultFormat; }
     void setDefaultFormat(const QString& val) { m_defaultFormat = val; }

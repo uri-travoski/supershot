@@ -30,13 +30,14 @@ It is designed to consume minimal system resources (~7–12 MB private RAM idle 
 - **Annotation Editor (ksnip-like UI & Multi-Tab Support)**:
   - Multi-tab editing: open and edit multiple screenshots or images simultaneously.
   - Left-hand vertical toolbar containing Photoshop-style annotation tools:
-    - **Pan / Hand Tool**: Smooth click-and-drag viewport panning across large images.
+    - **Pan / Hand Tool**: Smooth click-and-drag viewport panning across large images. Middle-clicking the mouse wheel anywhere activates Hand to pan/move the image/canvas immediately.
+    - **Mouse Wheel Scrolling & Zooming**: Mouse wheel scrolls the image up or down smoothly (Shift+Wheel scrolls horizontally; Ctrl+Wheel zooms).
     - **Select Tool**: Select and move vector annotations, **plus area selection** on the screenshot canvas with instant floating action buttons:
       - 📋 **Copy**: Copies the selected area to clipboard.
       - ✂ **Cut**: Copies to clipboard and clears the area on the image.
       - 🗑 **Delete**: Erases the selected area with white fill.
       - ⛶ **Crop**: Crops the canvas to the selected area.
-    - **Interactive Canvas Resize Handles**: 8 perimeter handles allowing dragging to expand the canvas from any edge or corner with full Undo/Redo.
+    - **Interactive Canvas Resize with Pixel Dimensions HUD**: 8 perimeter handles to expand or trim canvas bounds, showing a high-contrast floating HUD with real-time `W × H px` dimensions so you can stop at exact pixel sizes.
     - **Pen**: Smooth freehand calligraphy and drawing.
     - **Highlighter**: Balanced, translucent highlighting brush preserving underlying text and syntax.
     - **Line**: Straight line tool.
@@ -46,9 +47,9 @@ It is designed to consume minimal system resources (~7–12 MB private RAM idle 
     - **Ellipse**: Outlined and filled circles/ellipses.
     - **Text**: Custom text with editable font, size, and styling.
     - **Number / Stepper Badge**: Auto-incrementing circular badges (`1`, `2`, `3`...) with a one-click counter reset.
-    - **Blur / Pixelate**: Redaction tool to obscure sensitive information using mosaic blocks.
+    - **Blur / Pixelate**: Redaction tool to obscure sensitive information with 1–10 levels (default level 3).
     - **Crop**: Dedicated crop tool with live handles.
-  - Top Toolbar: New, Open, Save, Save As, Copy to Clipboard, Paste image, Undo, Redo, Zoom In, Zoom Out, 100%, Fit to Window.
+  - Top Toolbar: New, Open, Save, Save As, Copy to Clipboard, Paste image, Undo, Redo, Zoom In, Zoom Out, 100%, Fit to Window, plus a **Zoom Slider** supporting 10% up to 1000% (10x zoom).
   - Properties Bar: Stroke color picker, Fill color picker, Stroke width (1–50px), Stepper reset.
   - Status Bar: Image dimensions, zoom factor, and cursor coordinates.
 
@@ -58,12 +59,13 @@ It is designed to consume minimal system resources (~7–12 MB private RAM idle 
   - On **X11**: Uses native X11 overlays (`QScreen::grabWindow`, snipping overlay loupe, `XGrabKey`).
   - Single binary works seamlessly across all Linux environments!
 
-- **Settings, Themes & Autostart**:
+- **Settings, Themes & Auto-Updates**:
   - **Dark / Light Theme**: Configurable under Settings. **Light Theme** gives a sleek, neutral **Grey UI** with high-contrast tool icons and grey canvas background; **Dark Theme** provides a clean dark styling. Changes apply live without restart.
   - **Start with PC**: Automatically creates `~/.config/autostart/supershot.desktop` to launch minimized in the system tray on login.
-  - **Save Location**: Configurable default directory (e.g. `~/Pictures/Screenshots`).
+  - **Save Location**: Defaults to `~/Pictures/Screenshots` (auto-created if missing) with standardized timestamp naming: `yyyymmdd hh:mm:ss Supershot.<ext>`.
   - **Formats**: PNG, JPG, BMP, WebP.
   - **Global Hotkeys**: Configurable global shortcuts for Fullscreen, Region, Color Picker, and Editor.
+  - **Automatic Updates**: Automatic check on startup with desktop notifications and in-app manual "Check for Updates" under Help/About.
 
 ---
 
@@ -73,27 +75,27 @@ Prebuilt releases are available on the [Releases page](https://github.com/uri-tr
 
 ### 1. Debian / Ubuntu / Linux Mint (`.deb`)
 ```bash
-sudo dpkg -i supershot-1.35.0-Linux.deb
+sudo dpkg -i supershot-1.39.0-Linux.deb
 # or
-sudo apt install ./supershot-1.35.0-Linux.deb
+sudo apt install ./supershot-1.39.0-Linux.deb
 ```
 
 ### 2. Fedora / RHEL / openSUSE (`.rpm`)
 ```bash
-sudo rpm -i supershot-1.35.0-Linux.rpm
+sudo rpm -i supershot-1.39.0-Linux.rpm
 # or on Fedora:
-sudo dnf install ./supershot-1.35.0-Linux.rpm
+sudo dnf install ./supershot-1.39.0-Linux.rpm
 ```
 
 ### 3. Universal Linux AppImage (`.AppImage`)
 ```bash
-chmod +x SuperShot-1.35.0-x86_64.AppImage
-./SuperShot-1.35.0-x86_64.AppImage
+chmod +x SuperShot-1.39.0-x86_64.AppImage
+./SuperShot-1.39.0-x86_64.AppImage
 ```
 
 ### 4. Flatpak Bundle (`.flatpak`)
 ```bash
-flatpak install --user supershot-1.35.0.flatpak
+flatpak install --user supershot-1.39.0.flatpak
 flatpak run io.github.uri_travoski.supershot
 ```
 

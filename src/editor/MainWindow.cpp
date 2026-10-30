@@ -131,6 +131,10 @@ void MainWindow::applyTheme(const QString& theme) {
             "QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0px; background: none; border: none; }"
             "QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical { background: none; }"
             "QScrollBar::corner { background: #d6d6d6; border: none; }"
+            "QSlider::groove:horizontal { height: 4px; background: #b0b0b0; border-radius: 2px; }"
+            "QSlider::sub-page:horizontal { background: #30e500; border-radius: 2px; }"
+            "QSlider::handle:horizontal { background: #ffffff; border: 2px solid #30e500; width: 14px; margin-top: -5px; margin-bottom: -5px; border-radius: 7px; }"
+            "QSlider::handle:horizontal:hover { background: #30e500; }"
         );
         m_newTabBtn->setStyleSheet("QPushButton { font-weight: bold; font-size: 14px; background: transparent; color: #444444; border: none; padding: 4px 10px; } QPushButton:hover { background: #cccccc; border-radius: 4px; }");
         if (m_resetBadgeBtn) {
@@ -138,6 +142,9 @@ void MainWindow::applyTheme(const QString& theme) {
         }
         if (m_fontBtn) {
             m_fontBtn->setStyleSheet("QPushButton { padding: 2px 8px; border: 1px solid #b0b0b0; border-radius: 3px; font-size: 11px; background-color: #f0f0f0; color: #222222; } QPushButton:hover { background-color: #e0e0e0; border-color: #888888; }");
+        }
+        if (m_zoomLabel) {
+            m_zoomLabel->setStyleSheet("font-size: 11px; color: #444444; padding-right: 4px;");
         }
     } else {
         // Dark Theme: Neutral Sleek Dark UI
@@ -172,12 +179,19 @@ void MainWindow::applyTheme(const QString& theme) {
             "QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0px; background: none; border: none; }"
             "QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical { background: none; }"
             "QScrollBar::corner { background: #202020; border: none; }"
+            "QSlider::groove:horizontal { height: 4px; background: #444444; border-radius: 2px; }"
+            "QSlider::sub-page:horizontal { background: #30e500; border-radius: 2px; }"
+            "QSlider::handle:horizontal { background: #e0e0e0; border: 2px solid #30e500; width: 14px; margin-top: -5px; margin-bottom: -5px; border-radius: 7px; }"
+            "QSlider::handle:horizontal:hover { background: #30e500; }"
             "QMessageBox { background-color: #242424; color: #ffffff; }"
             "QMessageBox QLabel { color: #ffffff; background: transparent; }"
             "QMessageBox QPushButton { background-color: #383838; color: #ffffff; border: 1px solid #555555; border-radius: 4px; padding: 6px 16px; min-width: 80px; font-size: 12px; }"
             "QMessageBox QPushButton:hover { background-color: #484848; border-color: #777777; }"
             "QMessageBox QTextEdit { background-color: #1a1a1a; color: #ffffff; border: 1px solid #444444; }"
         );
+        if (m_zoomLabel) {
+            m_zoomLabel->setStyleSheet("font-size: 11px; color: #aaaaaa; padding-right: 4px;");
+        }
         m_newTabBtn->setStyleSheet("QPushButton { font-weight: bold; font-size: 14px; background: transparent; color: #cccccc; border: none; padding: 4px 10px; } QPushButton:hover { background: #383838; border-radius: 4px; }");
         if (m_resetBadgeBtn) {
             m_resetBadgeBtn->setStyleSheet("QPushButton { padding: 2px 8px; border: 1px solid #555555; border-radius: 3px; font-size: 11px; font-weight: bold; background-color: #383838; color: #ffffff; } QPushButton:hover { background-color: #484848; border-color: #777777; } QPushButton:pressed { background-color: #282828; }");
@@ -382,6 +396,29 @@ void MainWindow::setupToolbars() {
     });
     registerAct(tbZoomFit, "zoom_fit");
 
+    m_zoomSlider = new QSlider(Qt::Horizontal, this);
+    m_zoomSlider->setRange(10, 1000); // 10% to 1000% (10x zoom)
+    m_zoomSlider->setValue(100);
+    m_zoomSlider->setFixedWidth(130);
+    m_zoomSlider->setToolTip(tr("Zoom Slider (10% to 1000% / 10x)"));
+    connect(m_zoomSlider, &QSlider::valueChanged, this, [this](int val) {
+        if (currentView()) {
+            qreal factor = val / 100.0;
+            currentView()->applyZoom(factor);
+            if (m_zoomLabel) {
+                m_zoomLabel->setText(QString("%1%").arg(val));
+            }
+            statusBar()->showMessage(QString("Zoom: %1%").arg(val), 1000);
+        }
+    });
+    m_mainToolBar->addWidget(m_zoomSlider);
+
+    m_zoomLabel = new QLabel("100%", this);
+    m_zoomLabel->setFixedWidth(46);
+    m_zoomLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    m_zoomLabel->setStyleSheet("font-size: 11px; padding-right: 4px;");
+    m_mainToolBar->addWidget(m_zoomLabel);
+
     // 2. Property Toolbar (below main toolbar)
     addToolBarBreak();
     m_propToolBar = addToolBar(tr("Tool Properties"));
@@ -565,6 +602,11 @@ void MainWindow::addImageTab(const QPixmap& pixmap, const QString& title) {
     connect(scene, &CanvasScene::statusMessageRequested, this, [this](const QString& msg, int timeout) {
         statusBar()->showMessage(msg, timeout);
     });
+    connect(scene, &CanvasScene::canvasResizing, this, [this](int w, int h) {
+        if (m_statusDimensions) {
+            m_statusDimensions->setText(QString("%1 × %2 px").arg(w).arg(h));
+        }
+    });
     connect(scene, &CanvasScene::sceneModified, this, [this, scene]() {
         QPixmap p = scene->basePixmap();
         if (m_statusDimensions) {
@@ -581,9 +623,12 @@ void MainWindow::addImageTab(const QPixmap& pixmap, const QString& title) {
     view->applyTheme(SettingsManager::instance().theme() == "Light");
     connect(view, &CanvasView::zoomChanged, this, &MainWindow::onZoomChanged);
     connect(view, &CanvasView::mouseMovedTo, this, &MainWindow::onCursorMoved);
+    connect(view, &CanvasView::panToolRequested, this, [this]() {
+        selectTool(ToolType::Pan);
+    });
     view->updateToolCursor();
 
-    QString tabTitle = title.isEmpty() ? QString("Capture %1").arg(m_tabWidget->count() + 1) : title;
+    QString tabTitle = title.isEmpty() ? QString("%1 Supershot").arg(QDateTime::currentDateTime().toString("yyyyMMdd hh:mm:ss")) : title;
     int idx = m_tabWidget->addTab(view, tabTitle);
     m_tabWidget->setCurrentIndex(idx);
 
@@ -670,7 +715,7 @@ void MainWindow::saveActiveTab() {
     QDir().mkpath(saveDir);
 
     QString ext = SettingsManager::instance().defaultFormat().toLower();
-    QString fileName = QString("Screenshot_%1.%2").arg(QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss")).arg(ext);
+    QString fileName = QString("%1 Supershot.%2").arg(QDateTime::currentDateTime().toString("yyyyMMdd hh:mm:ss")).arg(ext);
     QString fullPath = saveDir + "/" + fileName;
 
     QPixmap outPix = scene->renderToPixmap();
@@ -687,10 +732,14 @@ void MainWindow::saveActiveTabAs() {
     if (!scene) return;
 
     QString saveDir = SettingsManager::instance().saveLocation();
+    QDir().mkpath(saveDir);
     QString ext = SettingsManager::instance().defaultFormat().toLower();
     QString filter = QString("%1 (*.%2);;All Files (*)").arg(ext.toUpper()).arg(ext);
 
-    QString path = QFileDialog::getSaveFileName(this, tr("Save Screenshot As"), saveDir, filter);
+    QString defaultFileName = QString("%1 Supershot.%2").arg(QDateTime::currentDateTime().toString("yyyyMMdd hh:mm:ss")).arg(ext);
+    QString defaultPath = saveDir + "/" + defaultFileName;
+
+    QString path = QFileDialog::getSaveFileName(this, tr("Save Screenshot As"), defaultPath, filter);
     if (!path.isEmpty()) {
         QPixmap outPix = scene->renderToPixmap();
         if (outPix.save(path)) {
@@ -766,7 +815,7 @@ bool MainWindow::saveTab(int index) {
     if (tabTitle.endsWith("." + ext, Qt::CaseInsensitive)) {
         fileName = tabTitle;
     } else {
-        fileName = QString("Screenshot_%1.%2").arg(QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss")).arg(ext);
+        fileName = QString("%1 Supershot.%2").arg(QDateTime::currentDateTime().toString("yyyyMMdd hh:mm:ss")).arg(ext);
     }
     QString fullPath = saveDir + "/" + fileName;
 
@@ -847,7 +896,16 @@ void MainWindow::onCurrentTabChanged(int) {
 }
 
 void MainWindow::onZoomChanged(double factor) {
-    m_statusZoom->setText(QString("%1%").arg(qRound(factor * 100)));
+    int percent = qBound(10, qRound(factor * 100), 1000);
+    m_statusZoom->setText(QString("%1%").arg(percent));
+    if (m_zoomSlider) {
+        m_zoomSlider->blockSignals(true);
+        m_zoomSlider->setValue(percent);
+        m_zoomSlider->blockSignals(false);
+    }
+    if (m_zoomLabel) {
+        m_zoomLabel->setText(QString("%1%").arg(percent));
+    }
 }
 
 void MainWindow::onCursorMoved(const QPoint& pt) {

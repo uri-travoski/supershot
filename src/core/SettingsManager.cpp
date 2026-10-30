@@ -11,7 +11,8 @@ SettingsManager::SettingsManager() {
     if (picDir.isEmpty()) {
         picDir = QDir::homePath() + "/Pictures";
     }
-    m_saveLocation = picDir;
+    m_saveLocation = picDir + "/Screenshots";
+    QDir().mkpath(m_saveLocation);
     load();
 }
 
@@ -20,13 +21,15 @@ void SettingsManager::load() {
     if (picDir.isEmpty()) {
         picDir = QDir::homePath() + "/Pictures";
     }
+    QString defaultSaveDir = picDir + "/Screenshots";
 
     QSettings s("supershot", "supershot");
     m_startWithPC = s.value("startWithPC", false).toBool();
-    m_saveLocation = s.value("saveLocation", m_saveLocation).toString();
-    if (m_saveLocation == picDir + "/Screenshots") {
-        m_saveLocation = picDir;
+    m_saveLocation = s.value("saveLocation", defaultSaveDir).toString();
+    if (m_saveLocation.isEmpty() || m_saveLocation == picDir) {
+        m_saveLocation = defaultSaveDir;
     }
+    QDir().mkpath(m_saveLocation);
     m_defaultFormat = s.value("defaultFormat", "PNG").toString();
     m_autoCopyToClipboard = s.value("autoCopyToClipboard", true).toBool();
     m_openEditorAfterCapture = s.value("openEditorAfterCapture", true).toBool();

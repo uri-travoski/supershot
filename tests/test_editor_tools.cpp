@@ -96,6 +96,9 @@ private slots:
     void testPortalResponsesAndErrorHandling();
     void testWaylandCaptureManagerAndColorPicker();
     void testSaveIconEnlarged();
+    void testMainToolbarZoomSlider();
+    void testCanvasResizeDimensionsHUD();
+    void testDefaultSaveLocationAndNamingFormat();
 };
 
 void TestEditorTools::initTestCase() {
@@ -566,39 +569,28 @@ void TestEditorTools::testDefaultSaveLocation() {
     if (expectedDir.isEmpty()) {
         expectedDir = QDir::homePath() + "/Pictures";
     }
+    expectedDir = expectedDir + "/Screenshots";
     QCOMPARE(s.saveLocation(), expectedDir);
+    QVERIFY(QDir(s.saveLocation()).exists());
 }
 
 void TestEditorTools::testCanvasViewDirectMousewheelZoom() {
     TestScene scene;
-    QPixmap pix(800, 600);
+    QPixmap pix(1200, 1000);
     pix.fill(Qt::white);
     scene.setBasePixmap(pix);
 
     CanvasView view(&scene);
-    view.resize(800, 600);
+    view.resize(400, 300);
+    view.show();
+    QApplication::processEvents();
 
-    qreal initialZoom = view.zoomFactor();
+    int initialScrollY = view.verticalScrollBar()->value();
 
-    // Wheel up zooms in directly without Ctrl
-    QWheelEvent zoomInEvent(
-        QPointF(400, 300),
-        QPointF(400, 300),
-        QPoint(0, 0),
-        QPoint(0, 120),
-        Qt::NoButton,
-        Qt::NoModifier,
-        Qt::NoScrollPhase,
-        false
-    );
-    QApplication::sendEvent(view.viewport(), &zoomInEvent);
-
-    QVERIFY(view.zoomFactor() > initialZoom);
-
-    // Wheel down zooms out directly without Ctrl
-    QWheelEvent zoomOutEvent(
-        QPointF(400, 300),
-        QPointF(400, 300),
+    // Wheel down (angleDelta.y < 0) scrolls down (value increases)
+    QWheelEvent scrollDownEvent(
+        QPointF(200, 150),
+        QPointF(200, 150),
         QPoint(0, 0),
         QPoint(0, -120),
         Qt::NoButton,
@@ -606,9 +598,36 @@ void TestEditorTools::testCanvasViewDirectMousewheelZoom() {
         Qt::NoScrollPhase,
         false
     );
-    QApplication::sendEvent(view.viewport(), &zoomOutEvent);
+    QApplication::sendEvent(view.viewport(), &scrollDownEvent);
+    QVERIFY(view.verticalScrollBar()->value() > initialScrollY);
 
-    QVERIFY(view.zoomFactor() <= initialZoom + 0.05);
+    // Wheel up (angleDelta.y > 0) scrolls up (value decreases)
+    QWheelEvent scrollUpEvent(
+        QPointF(200, 150),
+        QPointF(200, 150),
+        QPoint(0, 0),
+        QPoint(0, 120),
+        Qt::NoButton,
+        Qt::NoModifier,
+        Qt::NoScrollPhase,
+        false
+    );
+    QApplication::sendEvent(view.viewport(), &scrollUpEvent);
+    QCOMPARE(view.verticalScrollBar()->value(), initialScrollY);
+
+    // Middle click emits panToolRequested
+    bool panRequested = false;
+    auto conn = QObject::connect(&view, &CanvasView::panToolRequested, [&panRequested]() {
+        panRequested = true;
+    });
+
+    QMouseEvent middlePress(QEvent::MouseButtonPress, QPointF(200, 150), Qt::MiddleButton, Qt::MiddleButton, Qt::NoModifier);
+    QApplication::sendEvent(view.viewport(), &middlePress);
+    QVERIFY(panRequested);
+
+    QMouseEvent middleRelease(QEvent::MouseButtonRelease, QPointF(200, 150), Qt::MiddleButton, Qt::NoButton, Qt::NoModifier);
+    QApplication::sendEvent(view.viewport(), &middleRelease);
+    QObject::disconnect(conn);
 }
 
 void TestEditorTools::testBlurItemMemoryOptimization() {
@@ -742,7 +761,7 @@ void TestEditorTools::testAboutDialogUpdateControls() {
     QVERIFY(status != nullptr);
     QCOMPARE(btn->text(), QString("Check for Updates"));
     QVERIFY(btn->isEnabled());
-    QVERIFY(status->text().contains("1.38.0") || status->text().contains("SuperShot"));
+    QVERIFY(status->text().contains("1.39.0") || status->text().contains("SuperShot"));
 
     // Simulate checkStarted signal
     emit UpdateManager::instance().checkStarted();
@@ -750,12 +769,12 @@ void TestEditorTools::testAboutDialogUpdateControls() {
     QVERIFY(status->text().contains("Checking"));
 
     // Simulate checkFinished with update available
-    emit UpdateManager::instance().checkFinished(true, "v1.39.0", "https://github.com/uri-travoski/supershot/releases/tag/v1.39.0");
+    emit UpdateManager::instance().checkFinished(true, "v1.40.0", "https://github.com/uri-travoski/supershot/releases/tag/v1.40.0");
     QVERIFY(btn->isEnabled());
-    QVERIFY(status->text().contains("1.39.0"));
+    QVERIFY(status->text().contains("1.40.0"));
 
     // Simulate checkFinished with up to date
-    emit UpdateManager::instance().checkFinished(false, "v1.38.0", "https://github.com/uri-travoski/supershot/releases/tag/v1.38.0");
+    emit UpdateManager::instance().checkFinished(false, "v1.39.0", "https://github.com/uri-travoski/supershot/releases/tag/v1.39.0");
     QVERIFY(btn->isEnabled());
     QVERIFY(status->text().contains("up to date"));
 
@@ -2330,6 +2349,129 @@ void TestEditorTools::testSaveIconEnlarged() {
     qDebug() << "testSaveIconEnlarged width:" << width << "height:" << height;
     QVERIFY(width >= 20 && width <= 26);
     QVERIFY(height >= 20 && height <= 26);
+}
+
+void TestEditorTools::testMainToolbarZoomSlider() {
+    MainWindow win;
+    win.show();
+    QPixmap pix(800, 600);
+    pix.fill(Qt::blue);
+    win.addImageTab(pix, "ZoomSliderTest");
+    QApplication::processEvents();
+
+    QSlider* slider = win.findChild<QSlider*>();
+    QVERIFY(slider != nullptr);
+    QCOMPARE(slider->minimum(), 10);
+    QCOMPARE(slider->maximum(), 1000);
+
+    // Initial zoom 100% -> slider value 100
+    QCOMPARE(slider->value(), 100);
+
+    CanvasView* view = win.currentView();
+    QVERIFY(view != nullptr);
+
+    // Move slider to 500 (500% / 5.0x zoom)
+    slider->setValue(500);
+    QApplication::processEvents();
+    QVERIFY(qAbs(view->zoomFactor() - 5.0) < 0.01);
+
+    // Move slider to 1000 (1000% / 10.0x zoom)
+    slider->setValue(1000);
+    QApplication::processEvents();
+    QVERIFY(qAbs(view->zoomFactor() - 10.0) < 0.01);
+
+    // Zoom actual (100%) resets slider to 100
+    view->zoomActual();
+    QApplication::processEvents();
+    QCOMPARE(slider->value(), 100);
+}
+
+void TestEditorTools::testCanvasResizeDimensionsHUD() {
+    TestScene scene;
+    QPixmap pix(400, 300);
+    pix.fill(Qt::white);
+    scene.setBasePixmap(pix);
+    scene.setCurrentTool(ToolType::Select);
+
+    int reportedW = 0;
+    int reportedH = 0;
+    QObject::connect(&scene, &CanvasScene::canvasResizing, [&](int w, int h) {
+        reportedW = w;
+        reportedH = h;
+    });
+
+    QString statusMsg;
+    QObject::connect(&scene, &CanvasScene::statusMessageRequested, [&](const QString& msg, int) {
+        statusMsg = msg;
+    });
+
+    // Handle at Right edge of canvas: (400, 150)
+    QRectF rightHandle = scene.handleRect(CanvasScene::CanvasHandle::Right);
+    QVERIFY(!rightHandle.isEmpty());
+
+    QGraphicsSceneMouseEvent press(QEvent::GraphicsSceneMousePress);
+    press.setScenePos(rightHandle.center());
+    press.setButton(Qt::LeftButton);
+    press.setButtons(Qt::LeftButton);
+    scene.mousePressEvent(&press);
+    QVERIFY(scene.activeHandle() == CanvasScene::CanvasHandle::Right);
+
+    // Drag handle to the right by 100px (x = 500)
+    QGraphicsSceneMouseEvent move(QEvent::GraphicsSceneMouseMove);
+    move.setScenePos(QPointF(500, rightHandle.center().y()));
+    move.setButtons(Qt::LeftButton);
+    scene.mouseMoveEvent(&move);
+
+    QCOMPARE(reportedW, 500);
+    QCOMPARE(reportedH, 300);
+    QVERIFY(statusMsg.contains("500 × 300 px"));
+
+    // Release mouse
+    QGraphicsSceneMouseEvent release(QEvent::GraphicsSceneMouseRelease);
+    release.setScenePos(QPointF(500, rightHandle.center().y()));
+    release.setButton(Qt::LeftButton);
+    scene.mouseReleaseEvent(&release);
+
+    QCOMPARE(scene.basePixmap().width(), 500);
+    QCOMPARE(scene.basePixmap().height(), 300);
+}
+
+void TestEditorTools::testDefaultSaveLocationAndNamingFormat() {
+    SettingsManager& s = SettingsManager::instance();
+    QString expectedDir = QStandardPaths::writableLocation(QStandardPaths::PicturesLocation);
+    if (expectedDir.isEmpty()) {
+        expectedDir = QDir::homePath() + "/Pictures";
+    }
+    expectedDir = expectedDir + "/Screenshots";
+    QCOMPARE(s.saveLocation(), expectedDir);
+    QVERIFY(QDir(s.saveLocation()).exists());
+
+    // Test saving an active tab generates the correct naming pattern
+    MainWindow win;
+    win.show();
+    QPixmap pix(200, 200);
+    pix.fill(Qt::red);
+    win.addImageTab(pix); // default title is empty
+    QApplication::processEvents();
+
+    QTabWidget* tabs = win.findChild<QTabWidget*>();
+    QVERIFY(tabs != nullptr);
+    QString tabTitle = tabs->tabText(0);
+    // Tab title should end with "Supershot"
+    QVERIFY(tabTitle.contains("Supershot"));
+
+    // Call saveActiveTab and verify generated file exists
+    win.saveActiveTab();
+    QString savedName = tabs->tabText(0);
+    QString fullSavedPath = s.saveLocation() + "/" + savedName;
+    QVERIFY(QFile::exists(fullSavedPath));
+
+    // Naming format: yyyymmdd hh:mm:ss Supershot.png
+    QRegularExpression re(R"(^\d{8} \d{2}:\d{2}:\d{2} Supershot\.(png|jpg|bmp|webp)$)", QRegularExpression::CaseInsensitiveOption);
+    QVERIFY(re.match(savedName).hasMatch());
+
+    // Clean up temporary saved file
+    QFile::remove(fullSavedPath);
 }
 
 int main(int argc, char** argv) {

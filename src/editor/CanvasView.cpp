@@ -165,6 +165,29 @@ void CanvasView::wheelEvent(QWheelEvent* event) {
         return;
     }
 
+    if (event->modifiers() & Qt::ControlModifier) {
+        // Ctrl + Wheel zooms
+        if (event->angleDelta().y() != 0) {
+            QPointF mousePos = event->position();
+            QPointF scenePos = mapToScene(mousePos.toPoint());
+
+            qreal factor = (event->angleDelta().y() > 0) ? 1.25 : (1.0 / 1.25);
+            qreal newZoom = qBound(0.1, m_zoomFactor * factor, 10.0);
+            if (!qFuzzyCompare(newZoom, m_zoomFactor)) {
+                m_zoomFactor = newZoom;
+                setTransform(QTransform::fromScale(m_zoomFactor, m_zoomFactor));
+                QPointF newMousePos = mapFromScene(scenePos);
+                QPointF delta = newMousePos - mousePos;
+                horizontalScrollBar()->setValue(horizontalScrollBar()->value() + delta.x());
+                verticalScrollBar()->setValue(verticalScrollBar()->value() + delta.y());
+                updateFloatingBarPosition();
+                emit zoomChanged(m_zoomFactor);
+            }
+        }
+        event->accept();
+        return;
+    }
+
     if (event->modifiers() & Qt::ShiftModifier) {
         int delta = event->angleDelta().y() != 0 ? event->angleDelta().y() : event->angleDelta().x();
         horizontalScrollBar()->setValue(horizontalScrollBar()->value() - delta);
@@ -172,23 +195,18 @@ void CanvasView::wheelEvent(QWheelEvent* event) {
         return;
     }
 
-    if (event->angleDelta().y() != 0) {
-        QPointF mousePos = event->position();
-        QPointF scenePos = mapToScene(mousePos.toPoint());
-
-        qreal factor = (event->angleDelta().y() > 0) ? 1.25 : (1.0 / 1.25);
-        qreal newZoom = qBound(0.1, m_zoomFactor * factor, 10.0);
-        if (!qFuzzyCompare(newZoom, m_zoomFactor)) {
-            m_zoomFactor = newZoom;
-            setTransform(QTransform::fromScale(m_zoomFactor, m_zoomFactor));
-            QPointF newMousePos = mapFromScene(scenePos);
-            QPointF delta = newMousePos - mousePos;
-            horizontalScrollBar()->setValue(horizontalScrollBar()->value() + delta.x());
-            verticalScrollBar()->setValue(verticalScrollBar()->value() + delta.y());
-            updateFloatingBarPosition();
-            emit zoomChanged(m_zoomFactor);
-        }
+    // Default mouse wheel: scroll image up or down
+    int delta = event->angleDelta().y();
+    if (delta != 0) {
+        verticalScrollBar()->setValue(verticalScrollBar()->value() - delta);
+        event->accept();
+        return;
+    } else if (event->angleDelta().x() != 0) {
+        horizontalScrollBar()->setValue(horizontalScrollBar()->value() - event->angleDelta().x());
+        event->accept();
+        return;
     }
+
     event->accept();
 }
 
@@ -233,6 +251,14 @@ void CanvasView::updateToolCursor() {
 }
 
 void CanvasView::mousePressEvent(QMouseEvent* event) {
+    if (event->button() == Qt::MiddleButton) {
+        emit panToolRequested();
+        m_isPanning = true;
+        m_panStart = event->pos();
+        setCursor(Qt::ClosedHandCursor);
+        event->accept();
+        return;
+    }
     if (m_scene && m_scene->currentTool() == ToolType::Pan && event->button() == Qt::LeftButton) {
         QPointF scPos = mapToScene(event->pos());
         if (m_scene->handleAt(scPos) == CanvasScene::CanvasHandle::None) {
@@ -243,7 +269,7 @@ void CanvasView::mousePressEvent(QMouseEvent* event) {
             return;
         }
     }
-    if (event->button() == Qt::MiddleButton || (event->button() == Qt::LeftButton && (event->modifiers() & Qt::AltModifier))) {
+    if (event->button() == Qt::LeftButton && (event->modifiers() & Qt::AltModifier)) {
         m_isPanning = true;
         m_panStart = event->pos();
         setCursor(Qt::ClosedHandCursor);

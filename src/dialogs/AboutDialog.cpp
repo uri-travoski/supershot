@@ -36,7 +36,7 @@ AboutDialog::AboutDialog(QWidget* parent)
     QLabel* nameLabel = new QLabel("SuperShot", this);
     nameLabel->setStyleSheet("font-size: 22px; font-weight: bold; color: #30e500;");
     QString appVer = QCoreApplication::applicationVersion();
-    if (appVer.isEmpty()) appVer = "1.38.0";
+    if (appVer.isEmpty()) appVer = "1.39.0";
     QLabel* verLabel = new QLabel(tr("Version %1 (%2 x86_64)").arg(appVer, Platform::name()), this);
     verLabel->setStyleSheet("font-size: 12px; color: #aaaaaa;");
     titleLayout->addWidget(nameLabel);

@@ -207,6 +207,80 @@ private:
     CanvasScene* m_scene = nullptr;
 };
 
+class CanvasResizeGuideItem : public QGraphicsRectItem {
+public:
+    explicit CanvasResizeGuideItem(CanvasScene* scene, QGraphicsItem* parent = nullptr)
+        : QGraphicsRectItem(parent), m_scene(scene) {
+        setZValue(9600);
+        setPen(QPen(QColor(48, 229, 0), 2, Qt::DashLine));
+        setBrush(QColor(48, 229, 0, 25));
+        setVisible(false);
+    }
+
+    QRectF boundingRect() const override {
+        return rect().adjusted(-60, -60, 60, 60);
+    }
+
+    void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override {
+        QRectF r = rect();
+        if (r.isEmpty() || r.width() < 4 || r.height() < 4) return;
+
+        QGraphicsRectItem::paint(painter, option, widget);
+
+        painter->save();
+        painter->setRenderHint(QPainter::Antialiasing, true);
+
+        int w = qRound(r.width());
+        int h = qRound(r.height());
+        QString badgeText = QString("%1 × %2 px").arg(w).arg(h);
+
+        QFont font("Sans", 10, QFont::Bold);
+        painter->setFont(font);
+        QFontMetrics fm(font);
+        int textW = fm.horizontalAdvance(badgeText);
+        int textH = fm.height();
+
+        QRectF pillRect(0, 0, textW + 18, textH + 8);
+
+        QPointF targetPos;
+        if (m_scene && m_scene->activeHandle() != CanvasScene::CanvasHandle::None) {
+            QRectF hr = m_scene->handleRect(m_scene->activeHandle());
+            if (!hr.isEmpty()) {
+                targetPos = QPointF(hr.center().x() - pillRect.width() / 2.0, hr.top() - pillRect.height() - 8.0);
+            } else {
+                targetPos = QPointF(r.center().x() - pillRect.width() / 2.0, r.top() - pillRect.height() - 8.0);
+            }
+        } else {
+            targetPos = QPointF(r.center().x() - pillRect.width() / 2.0, r.top() - pillRect.height() - 8.0);
+        }
+
+        if (targetPos.y() < r.top() - 35) {
+            targetPos.setY(r.top() + 10);
+        }
+
+        pillRect.moveTopLeft(targetPos);
+
+        // Draw shadow
+        painter->setPen(Qt::NoPen);
+        painter->setBrush(QColor(0, 0, 0, 110));
+        painter->drawRoundedRect(pillRect.translated(0, 2), 5, 5);
+
+        // Draw pill background
+        painter->setBrush(QColor(24, 24, 24, 235));
+        painter->setPen(QPen(QColor(48, 229, 0), 1.5));
+        painter->drawRoundedRect(pillRect, 5, 5);
+
+        // Draw dimension text
+        painter->setPen(Qt::white);
+        painter->drawText(pillRect, Qt::AlignCenter, badgeText);
+
+        painter->restore();
+    }
+
+private:
+    CanvasScene* m_scene = nullptr;
+};
+
 // --- CanvasScene ---
 
 CanvasScene::CanvasScene(QObject* parent)
@@ -219,11 +293,7 @@ CanvasScene::CanvasScene(QObject* parent)
     m_canvasFrameItem = new CanvasFrameItem(this);
     addItem(m_canvasFrameItem);
 
-    m_canvasResizeGuideItem = new QGraphicsRectItem();
-    m_canvasResizeGuideItem->setZValue(9600);
-    m_canvasResizeGuideItem->setPen(QPen(QColor(48, 229, 0), 2, Qt::DashLine));
-    m_canvasResizeGuideItem->setBrush(QColor(48, 229, 0, 25));
-    m_canvasResizeGuideItem->setVisible(false);
+    m_canvasResizeGuideItem = new CanvasResizeGuideItem(this);
     addItem(m_canvasResizeGuideItem);
 
     m_areaSelectionItem = new AreaSelectionItem();
@@ -957,6 +1027,10 @@ void CanvasScene::mouseMoveEvent(QGraphicsSceneMouseEvent* event) {
 
         QRectF guideRect(minX, minY, maxX - minX, maxY - minY);
         m_canvasResizeGuideItem->setRect(guideRect);
+        int gw = qRound(guideRect.width());
+        int gh = qRound(guideRect.height());
+        emit canvasResizing(gw, gh);
+        emit statusMessageRequested(QString(tr("Canvas Size: %1 × %2 px")).arg(gw).arg(gh), 0);
         event->accept();
         return;
     }

@@ -102,6 +102,7 @@ signals:
     void badgeCounterChanged(int nextNumber);
     void colorPicked(const QColor& color, bool isFill);
     void statusMessageRequested(const QString& message, int timeout = 3000);
+    void canvasResizing(int width, int height);
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent* event) override;

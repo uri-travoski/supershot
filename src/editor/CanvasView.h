@@ -22,10 +22,12 @@ public:
 
     void applyTheme(bool isLight);
     void updateToolCursor();
+    void applyZoom(qreal factor);
 
 signals:
     void zoomChanged(double factor);
     void mouseMovedTo(const QPoint& scenePos);
+    void panToolRequested();
 
 protected:
     void wheelEvent(QWheelEvent* event) override;
@@ -42,7 +44,6 @@ private slots:
     void onAreaSelectionChanged(const QRectF& area, bool active);
 
 private:
-    void applyZoom(qreal factor);
     void updateFloatingBarPosition();
     void updateViewSceneRect();
     void drawColorPickerLoupe(QPainter& p, const QPoint& viewPos);

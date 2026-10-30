@@ -7,6 +7,7 @@
 #include <QSpinBox>
 #include <QPushButton>
 #include <QLabel>
+#include <QSlider>
 #include <QFontComboBox>
 #include <QCloseEvent>
 #include "ToolType.h"
@@ -154,6 +155,10 @@ private:
     QLabel* m_statusDimensions = nullptr;
     QLabel* m_statusZoom = nullptr;
     QLabel* m_statusCoords = nullptr;
+
+    // Zoom slider on main toolbar
+    QSlider* m_zoomSlider = nullptr;
+    QLabel* m_zoomLabel = nullptr;
 
     QColor m_currentStrokeColor = QColor(255, 30, 30);
     QColor m_currentFillColor = Qt::transparent;
